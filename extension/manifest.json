@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "lazy · Start",
+  "version": "1.0.0",
+  "description": "Podręczne menu stron i pogoda dla Gdańska. Interfejs po polsku.",
+  "permissions": ["storage", "https://api.open-meteo.com/*"],
+  "background": { "scripts": ["background.js"], "persistent": false },
+  "browser_action": {
+    "default_title": "Otwórz Start",
+    "default_icon": "icons/dots.svg"
+  },
+  "icons": { "48": "icons/dots.svg", "96": "icons/dots.svg" },
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["links.js", "launcher.js", "content.js"],
+    "run_at": "document_idle",
+    "all_frames": false
+  }],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "lazy-start@michalczukm",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": { "required": ["none"] }
+    },
+    "gecko_android": { "strict_min_version": "142.0" }
+  }
+}

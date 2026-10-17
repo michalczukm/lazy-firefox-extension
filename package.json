@@ -1,0 +1,18 @@
+{
+  "name": "lazy-firefox-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "dev": "python3 -m http.server 4198 --bind 127.0.0.1 --directory extension",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node scripts/browser-check.mjs",
+    "lint": "web-ext lint --source-dir extension --warnings-as-errors",
+    "build": "web-ext build --source-dir extension --artifacts-dir dist --overwrite-dest",
+    "verify": "pnpm test && pnpm lint && pnpm build"
+  },
+  "devDependencies": {
+    "web-ext": "10.8.0"
+  }
+}
