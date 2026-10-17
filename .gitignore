@@ -1,2 +1,9 @@
 dist
 node_modules
+.wrangler/
+.dev.vars*
+.env*
+/extension/vendor/
+/extension/launcher-theme.js
+.impeccable/review/
+.impeccable/hook.cache.json

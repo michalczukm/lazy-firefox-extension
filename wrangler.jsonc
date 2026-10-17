@@ -1,0 +1,6 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lazy-firefox-extension",
+  "pages_build_output_dir": "./dist/site",
+  "compatibility_date": "2026-10-17"
+}

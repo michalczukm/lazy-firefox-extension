@@ -1,18 +1,26 @@
 {
   "name": "lazy-firefox-extension",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.8.0",
   "scripts": {
-    "dev": "python3 -m http.server 4198 --bind 127.0.0.1 --directory extension",
-    "test": "node --test tests/*.test.js",
-    "test:browser": "node scripts/browser-check.mjs",
+    "dev": "pnpm build:theme && python3 -m http.server 4198 --bind 127.0.0.1 --directory extension",
+    "test": "pnpm build:theme && node --test tests/*.test.js",
+    "test:browser": "pnpm build:theme && node scripts/browser-check.mjs",
+    "test:site": "pnpm build:site && node scripts/browser-check.mjs --site",
     "lint": "web-ext lint --source-dir extension --warnings-as-errors",
-    "build": "web-ext build --source-dir extension --artifacts-dir dist --overwrite-dest",
-    "verify": "pnpm test && pnpm lint && pnpm build"
+    "build": "pnpm build:theme && web-ext build --source-dir extension --artifacts-dir dist --overwrite-dest",
+    "build:theme": "node scripts/copy-theme.mjs",
+    "build:site": "node scripts/build-site.mjs",
+    "deploy": "pnpm build:site && wrangler pages deploy dist/site --branch main",
+    "verify": "pnpm test && pnpm lint && pnpm build && pnpm build:site"
   },
   "devDependencies": {
-    "web-ext": "10.8.0"
+    "web-ext": "10.8.0",
+    "wrangler": "4.151.1"
+  },
+  "dependencies": {
+    "@lazy/theme": "github:michalczukm/lazy-theme#v0.1.0"
   }
 }

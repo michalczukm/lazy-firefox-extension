@@ -1,26 +1,27 @@
 <!doctype html>
-<html lang="pl">
+<html lang="pl" class="lazy-theme" data-lazy-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <title>Start · lazy</title>
   <link rel="icon" href="icons/dots.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/lazy-theme/theme.css">
   <link rel="stylesheet" href="dashboard.css">
   <script src="dashboard.js" type="module"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Przejdź do treści</a>
-  <div class="page">
+  <a class="lazy-skip-link skip-link" href="#main">Przejdź do treści</a>
+  <div class="lazy-page page">
     <header class="masthead">
-      <a class="wordmark" href="dashboard.html" aria-label="lazy — strona startowa">lazy<span>.</span></a>
+      <a class="lazy-wordmark wordmark" href="dashboard.html" aria-label="lazy — strona startowa">lazy<span aria-hidden="true">.</span></a>
       <time id="today"></time>
     </header>
     <main id="main" class="dashboard">
       <section class="weather" aria-labelledby="city" aria-busy="true">
         <div class="weather-heading">
-          <h1 id="city">Gdańsk</h1>
-          <button id="refresh" class="refresh" type="button" aria-label="Odśwież pogodę" title="Odśwież pogodę" disabled></button>
+          <h1 id="city" class="lazy-heading">Gdańsk</h1>
+          <button id="refresh" class="lazy-button lazy-button--icon refresh" type="button" aria-label="Odśwież pogodę" title="Odśwież pogodę" disabled></button>
         </div>
         <div class="weather-meta">
           <p id="weather-status" class="status" role="status">Łączenie z serwisem pogody…</p>
@@ -28,23 +29,23 @@
         </div>
         <p id="condition" class="condition">Pobieranie pogody…</p>
         <div class="reading">
-          <p class="temperature"><span id="temperature">—</span><span class="unit">°C</span></p>
+          <p class="lazy-display temperature"><span id="temperature">—</span><span class="unit">°C</span></p>
           <span id="weather-icon" class="weather-icon"></span>
         </div>
         <p id="feels-like" class="feels-like">Za chwilę sprawdzimy, jak jest na zewnątrz.</p>
         <div id="forecast" class="forecast" hidden>
-          <h2 id="forecast-title">Dzisiaj</h2>
+          <h2 id="forecast-title" class="lazy-title">Dzisiaj</h2>
           <dl>
-            <div><dt>Najwyższa</dt><dd id="high">—</dd></div>
-            <div><dt>Najniższa</dt><dd id="low">—</dd></div>
-            <div><dt>Szansa opadów</dt><dd id="rain">—</dd></div>
+            <div><dt>Najwyższa</dt><dd id="high" class="lazy-value">—</dd></div>
+            <div><dt>Najniższa</dt><dd id="low" class="lazy-value">—</dd></div>
+            <div><dt>Szansa opadów</dt><dd id="rain" class="lazy-value">—</dd></div>
           </dl>
         </div>
       </section>
       <nav class="destinations" aria-labelledby="sites-heading">
-        <h2 id="sites-heading">Twoje strony</h2>
+        <h2 id="sites-heading" class="lazy-title">Twoje strony</h2>
         <div id="site-links" class="site-links"></div>
-        <p class="menu-note">Menu dziewięciu kropek masz zawsze pod ręką — także na innych stronach.</p>
+        <p class="lazy-note menu-note">Menu dziewięciu kropek masz zawsze pod ręką — także na innych stronach.</p>
       </nav>
     </main>
   </div>

@@ -1,4 +1,5 @@
 import './links.js';
+import './launcher-theme.js';
 import './launcher.js';
 import { loadWeather, conditionLabel, localDate, REFRESH_MS } from './weather.js';
 
@@ -11,7 +12,7 @@ const weather = document.querySelector('.weather');
 const refresh = $('refresh');
 let busy = false;
 let timer;
-// The local adapter is only for running the same dashboard with `pnpm dev`.
+// Standalone hosting and local preview use browser storage without extension APIs.
 const storage = globalThis.browser?.storage.local || {
   async get(key) { return { [key]: JSON.parse(localStorage.getItem(key)) }; },
   async set(values) { for (const [key, value] of Object.entries(values)) localStorage.setItem(key, JSON.stringify(value)); },
@@ -21,7 +22,7 @@ globalThis.LazyLauncher.mount({ onHome: () => { location.href = 'dashboard.html'
 refresh.append(globalThis.LazyLauncher.icon('refresh'));
 
 for (const link of globalThis.LAZY_LINKS) {
-  const a = document.createElement('a'); a.className = 'site-link'; a.href = link.url;
+  const a = document.createElement('a'); a.className = 'lazy-link-row site-link'; a.href = link.url;
   const text = document.createElement('span');
   const title = document.createElement('strong'); title.textContent = link.label;
   const description = document.createElement('small'); description.textContent = link.description;
