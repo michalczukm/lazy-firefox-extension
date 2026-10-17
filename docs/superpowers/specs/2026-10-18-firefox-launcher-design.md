@@ -80,7 +80,8 @@ horizontal strip. Respect reduced motion and safe-area insets.
 - No Android homepage/new-tab override, startup redirection workaround,
   injected button on browser-internal/restricted pages, or global floating UI.
 - No settings editor, user-defined destinations, accounts, sync, forecast
-  charts, geolocation or separate hosting.
+  charts or geolocation. A later user request adds standalone Cloudflare Pages
+  hosting; see [deployment documentation](../../deployment.md).
 - Signing/distribution and physical Firefox Android verification remain
   explicit release steps; this machine has desktop Firefox but no adb or
   attached Android test environment.

@@ -21,8 +21,9 @@ no public add-on store listing or automated distribution is required.
 - A nine-dot button fixed in the top-right corner of ordinary HTTP/HTTPS
   pages, including websites outside the fixed destination list.
 - A horizontal menu of fixed links, shared with a dashboard.
-- Confirmed destinations: `https://lazy-diet.workers.dev/` and
-  `https://lazy-tea.pages.dev/`. The user originally envisaged four or five;
+- Confirmed destinations: `https://lazy-diet.workers.dev/`,
+  `https://lazy-tea.pages.dev/`, and `https://lazy-shopping.michalczukm.xyz/`
+  (label `lazy-list`). The user originally envisaged four or five;
   additional destinations remain unnamed and must not be fabricated.
 - Dashboard: Gdańsk weather on the left and large destination links on the right.
 - Current temperature, condition, apparent temperature, today's high/low,
@@ -31,6 +32,9 @@ no public add-on store listing or automated distribution is required.
   and identify old data when fresh weather is unavailable.
 - A menu action opens the dashboard; an optional fullscreen toggle acts
   on the current webpage.
+- The same dashboard is also a standalone Cloudflare Pages website. GitHub
+  Actions verifies changes, deploys `main`, and deploys same-repository PR previews.
+  Production URL: `https://lazy-firefox-extension.pages.dev/`.
 - All interface text is Polish.
 - All documentation is English. Quoted interface labels retain their Polish wording.
 
@@ -41,8 +45,8 @@ without an API key or device geolocation. Values use Celsius and Europe/Warsaw.
 Precipitation probability is the daily maximum. Failed requests retain the last
 valid result with its timestamp; previous-day forecasts show their actual date.
 
-The extension stores weather locally in `browser.storage.local`; the development
-preview uses `localStorage`. It does not transmit page contents, browsing history,
+The extension stores weather locally in `browser.storage.local`; the standalone
+website and development preview use `localStorage`. It does not transmit page contents, browsing history,
 or device location. There are no accounts, analytics, or remote scripts.
 
 ## Installation and Verification
@@ -72,7 +76,8 @@ tablet. Test navigation, dashboard access, offline weather, and fullscreen there
 - Android device locking requires a separate native component with
   appropriate device administrator privileges. The extension alone cannot
   provide a working lock button; omit that control from this version.
-- No device geolocation, backend, hosted dashboard, or framework is needed.
+- No device geolocation, backend, or framework is needed. Cloudflare Pages
+  hosts only static dashboard assets; extension entry points stay in the ZIP.
 
 ## Approved Design Direction
 
@@ -80,6 +85,12 @@ The user accepted a warm neutral background, dark green text, prominent
 weather numbers, and large touch targets. Two columns on a tablet, stacked
 on narrow screens. The nine-dot mark stays visually small within a comfortable
 touch target. Impeccable governs UI craft.
+
+The user requested migration to `https://github.com/michalczukm/lazy-theme`.
+Use `@lazy/theme` pinned to v0.1.0 for shared colors, local Atkinson fonts,
+components, and focus states. The light default remains explicit; dark is opt-in
+package compatibility, with no new preference or selector. Dashboard composition
+and launcher isolation remain app-owned. See [migration notes](docs/theme-migration.md).
 
 ## Product Principles
 

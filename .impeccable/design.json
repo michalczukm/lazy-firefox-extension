@@ -1,20 +1,39 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T22:42:33.475Z",
+  "generatedAt": "2026-10-17T23:43:34.990888Z",
   "title": "Design System: lazy",
   "extensions": {
+    "typographyMeta": {
+      "display": {
+        "displayName": "Weather display",
+        "purpose": "Shared regular display role for current temperature, with tabular numerals."
+      },
+      "heading": {
+        "displayName": "Destination heading",
+        "purpose": "Shared heading-size token for destination names; 24px at the default root size."
+      },
+      "launcher": {
+        "displayName": "Host-page launcher",
+        "purpose": "App-owned system typography and fixed pixel geometry inside an isolated shadow root."
+      }
+    },
     "shadows": [
       {
         "name": "launcher-float",
         "value": "0 3px 15px #142b2526",
-        "purpose": "Trigger, menu, and feedback message above host-page content."
+        "purpose": "App-owned exception for trigger, menu and feedback above host-page content."
       }
     ],
     "motion": [
       {
+        "name": "shared-state",
+        "value": "var(--lazy-duration-state) var(--lazy-ease-state)",
+        "purpose": "Package dashboard state transitions; currently 160ms ease-out, disabled for reduced motion."
+      },
+      {
         "name": "menu-reveal",
         "value": "unfold 180ms cubic-bezier(.16,1,.3,1)",
-        "purpose": "Clip-path changes from inset(0 0 0 12%) to inset(0); disabled under prefers-reduced-motion: reduce."
+        "purpose": "Launcher clip reveal from inset(0 0 0 12%) to inset(0); disabled for reduced motion."
       }
     ],
     "breakpoints": [
@@ -39,15 +58,15 @@
       "refersTo": "weather-reading",
       "description": "Current temperature and apparent temperature; illustration only, not live data.",
       "html": "<div class=\"ds-weather\"><div class=\"ds-reading\"><p class=\"ds-temperature\">12<span class=\"ds-unit\">°C</span></p><svg class=\"ds-weather-icon\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 18h11a4 4 0 0 0 0-8h-.4A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9Z\"/></svg></div><p class=\"ds-feels\">Odczuwalna 10°C</p></div>",
-      "css": ".ds-weather{font-family:Atkinson,sans-serif;color:var(--ink,#263d33)}.ds-reading{display:flex;align-items:center;gap:32px;min-height:148px;padding:14px 0 6px}.ds-temperature{margin:0;font-size:96px;font-weight:400;line-height:1.1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap}.ds-unit{display:inline-block;font-size:32px;letter-spacing:-.02em;margin-left:6px;vertical-align:20px}.ds-weather-icon{width:64px;height:64px;color:var(--accent,#59784f)}.ds-feels{margin:0;font-size:18px;line-height:1.5;color:var(--muted,#58675c)}"
+      "css": ".ds-weather{font-family:var(--lazy-font-family);color:var(--lazy-color-ink);line-height:var(--lazy-leading-body)}.ds-reading{display:flex;align-items:center;gap:var(--lazy-space-8);min-height:148px;padding:14px 0 6px}.ds-temperature{margin:0;font-size:var(--lazy-text-display);font-weight:var(--lazy-font-regular);line-height:var(--lazy-leading-display);letter-spacing:var(--lazy-tracking-heading);font-variant-numeric:tabular-nums;white-space:nowrap}.ds-unit{display:inline-block;font-size:var(--lazy-text-wordmark);letter-spacing:-.02em;margin-left:6px;vertical-align:20px}.ds-weather-icon{width:64px;height:64px;color:var(--lazy-color-accent)}.ds-feels{margin:0;font-size:var(--lazy-text-title);line-height:var(--lazy-leading-body);color:var(--lazy-color-muted)}"
     },
     {
       "name": "Destination row",
       "kind": "nav",
       "refersTo": "destination-row",
-      "description": "Large shared destination link with description and arrow.",
-      "html": "<a class=\"ds-site\" href=\"https://lazy-diet.workers.dev/\"><svg class=\"ds-site-icon\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12h18a9 9 0 0 1-18 0ZM7 7V4m5 3V3m5 4V4M7 21h10\"/></svg><span><strong>lazy-diet</strong><small>Posiłki i planowanie</small></span><svg class=\"\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 12h16m-6-6 6 6-6 6\"/></svg></a>",
-      "css": ".ds-site{display:grid;grid-template-columns:32px 1fr 24px;align-items:center;gap:22px;min-height:122px;padding:24px 4px;border-top:1px solid var(--line,#cdd5ca);border-bottom:1px solid var(--line,#cdd5ca);color:var(--ink,#263d33);font-family:Atkinson,sans-serif;text-decoration:none;touch-action:manipulation}.ds-site-icon{width:30px;height:30px;color:var(--accent,#59784f)}.ds-site strong{display:block;font-size:30px;font-weight:600;letter-spacing:-.025em}.ds-site small{display:block;color:var(--muted,#58675c);font-size:16px;line-height:1.5;margin-top:6px}.ds-site:hover{background:var(--soft,#e5eadd)}.ds-site:active{background:#d4dfcd}.ds-site:focus-visible{outline:3px solid var(--ink,#263d33);outline-offset:5px;}"
+      "description": "Shared destination row, shown with lazy-list and its licensed Lucide shopping-basket icon.",
+      "html": "<a class=\"ds-site\" href=\"https://lazy-shopping.michalczukm.xyz/\"><svg class=\"ds-site-icon\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m15 11-1 9\"/><path d=\"m19 11-4-7\"/><path d=\"M2 11h20\"/><path d=\"m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4\"/><path d=\"M4.5 15.5h15\"/><path d=\"m5 11 4-7\"/><path d=\"m9 11 1 9\"/></svg><span><strong>lazy-list</strong><small>Lista zakupów</small></span><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 12h16m-6-6 6 6-6 6\"/></svg></a>",
+      "css": ".ds-site{display:grid;grid-template-columns:2rem minmax(0,1fr) 1.5rem;align-items:center;gap:var(--lazy-space-5);min-height:122px;padding:var(--lazy-space-6) var(--lazy-space-1);border-top:1px solid var(--lazy-color-line);border-bottom:1px solid var(--lazy-color-line);color:var(--lazy-color-ink);font-family:var(--lazy-font-family);line-height:var(--lazy-leading-body);text-decoration:none;overflow-wrap:anywhere;touch-action:manipulation}.ds-site-icon{width:1.875rem;height:1.875rem;color:var(--lazy-color-accent)}.ds-site strong{display:block;font-size:var(--lazy-text-heading);font-weight:var(--lazy-font-semibold);letter-spacing:var(--lazy-tracking-heading)}.ds-site small{display:block;color:var(--lazy-color-muted);font-size:var(--lazy-text-body);margin-top:var(--lazy-space-1)}@media(hover:hover){.ds-site:hover{background:var(--lazy-color-soft)}}.ds-site:active{background:var(--lazy-color-pressed)}.ds-site:focus-visible{outline:var(--lazy-focus-width) solid var(--lazy-color-focus);outline-offset:var(--lazy-focus-offset)}"
     },
     {
       "name": "Refresh action",
@@ -55,44 +74,52 @@
       "refersTo": "refresh-action",
       "description": "Icon-only weather refresh beside the city; disabled while loading.",
       "html": "<button class=\"ds-refresh\" type=\"button\" aria-label=\"Odśwież pogodę\" title=\"Odśwież pogodę\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/></svg></button>",
-      "css": ".ds-refresh{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;background:transparent;color:var(--ink,#263d33);border:0;border-radius:8px;padding:10px;cursor:pointer;touch-action:manipulation}.ds-refresh:hover{background:var(--soft,#e5eadd)}.ds-refresh:active{background:#d4dfcd}.ds-refresh:disabled{color:var(--muted,#58675c);cursor:wait}.ds-refresh:focus-visible{outline:3px solid var(--ink,#263d33);outline-offset:5px}"
+      "css": ".ds-refresh{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;inline-size:var(--lazy-control-size);min-inline-size:var(--lazy-control-size);min-block-size:var(--lazy-control-size);background:var(--lazy-color-surface);color:var(--lazy-color-ink);border:1px solid transparent;border-radius:var(--lazy-radius-icon);padding:.625rem;cursor:pointer;touch-action:manipulation;transition:background-color var(--lazy-duration-state) var(--lazy-ease-state)}.ds-refresh svg{inline-size:1.5rem;block-size:1.5rem}@media(hover:hover){.ds-refresh:not(:disabled):hover{background:var(--lazy-color-soft)}}.ds-refresh:not(:disabled):active{background:var(--lazy-color-pressed)}.ds-refresh:disabled{opacity:.55;cursor:not-allowed}.ds-refresh:focus-visible{outline:var(--lazy-focus-width) solid var(--lazy-color-focus);outline-offset:var(--lazy-focus-offset)}@media(prefers-reduced-motion:reduce){.ds-refresh{transition:none}}"
     },
     {
       "name": "Launcher trigger",
       "kind": "button",
       "refersTo": "launcher-trigger",
-      "description": "Compact nine-dot control with a large target and reversed expanded state.",
+      "description": "Fixed pixel nine-dot target; expanded state uses package action fill and on-accent text.",
       "html": "<button class=\"ds-trigger\" type=\"button\" aria-label=\"Otwórz menu stron\" aria-expanded=\"false\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"5\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"5\" cy=\"12\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"5\" cy=\"19\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"12\" cy=\"5\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"12\" cy=\"12\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"12\" cy=\"19\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"19\" cy=\"5\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"19\" cy=\"12\" r=\"1.7\" fill=\"currentColor\"/><circle cx=\"19\" cy=\"19\" r=\"1.7\" fill=\"currentColor\"/></svg></button>",
-      "css": ".ds-trigger{width:48px;height:48px;padding:12px;border:0;border-radius:12px;background:#fbfaf5;color:#263d33;box-shadow:0 3px 15px #142b2526;cursor:pointer;touch-action:manipulation}.ds-trigger:hover{background:#e5eadd}.ds-trigger:active{background:#d4dfcd}.ds-trigger[aria-expanded=true]{color:#fbfaf5;background:#263d33}.ds-trigger:focus-visible{outline:3px solid #263d33;outline-offset:-4px}"
+      "css": ".ds-trigger{width:48px;height:48px;padding:12px;border:0;border-radius:12px;background:var(--lazy-color-surface);color:var(--lazy-color-ink);font:var(--lazy-font-semibold) 15px/1.3 system-ui,sans-serif;box-shadow:0 3px 15px #142b2526;cursor:pointer;touch-action:manipulation}.ds-trigger:hover{background:var(--lazy-color-soft)}.ds-trigger:active{background:var(--lazy-color-pressed)}.ds-trigger[aria-expanded=true]{color:var(--lazy-color-on-accent);background:var(--lazy-action-bg)}.ds-trigger:focus-visible{outline:var(--lazy-focus-width) solid var(--lazy-color-focus);outline-offset:-4px}"
     },
     {
       "name": "Launcher menu",
       "kind": "nav",
       "refersTo": "launcher-menu",
       "description": "Horizontal scrolling menu. Fullscreen is added by the application only when supported.",
-      "html": "<nav class=\"ds-menu\" aria-label=\"Podręczne menu\"><button type=\"button\"><svg class=\"\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9\"/></svg>Start</button><a href=\"https://lazy-diet.workers.dev/\"><svg class=\"ds-site-icon\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12h18a9 9 0 0 1-18 0ZM7 7V4m5 3V3m5 4V4M7 21h10\"/></svg>lazy-diet</a><a href=\"https://lazy-tea.pages.dev/\"><svg class=\"\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 8h13v6a6.5 6.5 0 0 1-13 0ZM17 9h2a3 3 0 0 1 0 6h-2M5 22h13M8 4V2m5 2V2\"/></svg>lazy-tea</a></nav>",
-      "css": ".ds-menu{display:flex;align-items:center;overflow-x:auto;min-width:0;max-width:calc(100vw - 24px);border-radius:12px;padding:4px;background:#fbfaf5;box-shadow:0 3px 15px #142b2526;scrollbar-width:thin;scrollbar-color:#7d8b7d #fbfaf5;animation:ds-unfold 180ms cubic-bezier(.16,1,.3,1)}.ds-menu a,.ds-menu button{display:inline-flex;align-items:center;gap:8px;flex-shrink:0;min-height:44px;padding:10px 14px;white-space:nowrap;text-decoration:none;border-radius:8px;border:0;color:#263d33;background:#fbfaf5;font:600 15px/1.3 system-ui,sans-serif;touch-action:manipulation;cursor:pointer}.ds-menu svg{width:19px;height:19px;flex-shrink:0}.ds-menu a:hover,.ds-menu button:hover{background:#e5eadd}.ds-menu a:active,.ds-menu button:active{background:#d4dfcd}.ds-menu a:focus-visible,.ds-menu button:focus-visible{outline:3px solid #263d33;outline-offset:-4px}@keyframes ds-unfold{from{clip-path:inset(0 0 0 12%)}to{clip-path:inset(0)}}@media(prefers-reduced-motion:reduce){.ds-menu{animation:none}}"
+      "html": "<nav class=\"ds-menu\" aria-label=\"Podręczne menu\"><button type=\"button\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9\"/></svg>Start</button><a href=\"https://lazy-diet.workers.dev/\"><svg class=\"ds-site-icon\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12h18a9 9 0 0 1-18 0ZM7 7V4m5 3V3m5 4V4M7 21h10\"/></svg>lazy-diet</a><a href=\"https://lazy-tea.pages.dev/\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 8h13v6a6.5 6.5 0 0 1-13 0ZM17 9h2a3 3 0 0 1 0 6h-2M5 22h13M8 4V2m5 2V2\"/></svg>lazy-tea</a><a href=\"https://lazy-shopping.michalczukm.xyz/\"><svg class=\"ds-site-icon\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m15 11-1 9\"/><path d=\"m19 11-4-7\"/><path d=\"M2 11h20\"/><path d=\"m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4\"/><path d=\"M4.5 15.5h15\"/><path d=\"m5 11 4-7\"/><path d=\"m9 11 1 9\"/></svg>lazy-list</a></nav>",
+      "css": ".ds-menu{display:flex;align-items:center;overflow-x:auto;min-width:0;max-width:calc(100vw - 24px);border-radius:12px;padding:4px;background:var(--lazy-color-surface);box-shadow:0 3px 15px #142b2526;scrollbar-width:thin;scrollbar-color:var(--lazy-color-muted) var(--lazy-color-surface);animation:ds-unfold 180ms cubic-bezier(.16,1,.3,1)}.ds-menu a,.ds-menu button{display:inline-flex;align-items:center;gap:8px;flex-shrink:0;min-height:48px;padding:10px 14px;white-space:nowrap;text-decoration:none;border-radius:8px;border:0;color:var(--lazy-color-ink);background:var(--lazy-color-surface);font:var(--lazy-font-semibold) 15px/1.3 system-ui,sans-serif;touch-action:manipulation;cursor:pointer}.ds-menu svg{width:19px;height:19px;flex-shrink:0}.ds-menu a:hover,.ds-menu button:hover{background:var(--lazy-color-soft)}.ds-menu a:active,.ds-menu button:active{background:var(--lazy-color-pressed)}.ds-menu a:focus-visible,.ds-menu button:focus-visible{outline:var(--lazy-focus-width) solid var(--lazy-color-focus);outline-offset:-4px}@keyframes ds-unfold{from{clip-path:inset(0 0 0 12%)}to{clip-path:inset(0)}}@media(prefers-reduced-motion:reduce){.ds-menu{animation:none}}"
     }
   ],
   "narrative": {
     "northStar": "Calm household launcher",
-    "overview": "Warm paper, dark green type, generous breathing room, and prominent weather numbers make lazy easy to read at a glance and comfortable to operate by touch. The dashboard is quiet and flat; the compact launcher floats above ordinary webpages.\n\nUse simple geometric SVG icons rather than imagery. The approved palette and restrained composition define the visual identity; the launcher uses native system type to fit its host pages.",
+    "overview": "Warm paper, dark green type, generous breathing room, and prominent weather numbers make lazy easy to read at a glance and comfortable to operate by touch. The dashboard is quiet and flat; the compact launcher floats above ordinary webpages.\n\nThe shared `@lazy/theme` package owns the palette, dashboard fonts, type roles, controls and focus states. The app owns composition, density, compact weather metadata and launcher isolation. Use simple geometric SVG icons and retain Polish interface copy.",
     "keyCharacteristics": [
-      "Warm neutral paper with dark green text.",
-      "Large touch targets and a clear numerical hierarchy.",
-      "Flat dashboard, compact floating launcher, Polish interface copy."
+      "Warm neutral paper with dark green text by default.",
+      "Shared Atkinson typography, prominent tabular weather numbers and large touch targets.",
+      "Flat dashboard and compact floating launcher with native system type."
     ],
-    "rules": [],
+    "rules": [
+      {
+        "name": "The Semantic actions Rule",
+        "body": "Use action tokens for filled states; never derive their colors from ink.",
+        "section": "colors"
+      }
+    ],
     "dos": [
+      "Do consume shared semantic tokens, fonts and dashboard component classes from @lazy/theme.",
       "Do keep weather readable and destination links usable during network failures.",
-      "Do use the shared destination list and its Polish descriptions.",
-      "Do preserve visible keyboard focus and reduced-motion support.",
-      "Do use self-hosted Atkinson on the dashboard and system-ui inside the launcher."
+      "Do preserve visible keyboard focus, reduced motion and at least 48px control targets at the default root size.",
+      "Do preserve the shared destination list and its Polish descriptions.",
+      "Do keep launcher system type, pixel geometry and host isolation explicit."
     ],
     "donts": [
-      "Don't introduce images, decorative cards, or extra destination links without a real product need.",
-      "Don't add a lock control: this extension cannot lock Android.",
-      "Don't present fullscreen when the current document does not support it.",
+      "Don't introduce a private palette, duplicate font registrations or generated vendor edits.",
+      "Don't derive filled action colors from ink; preserve package dark compatibility.",
+      "Don't introduce decorative cards or dashboard shadows.",
+      "Don't add unnamed destinations, an Android lock control or unsupported fullscreen actions.",
       "Don't let launcher styling leak into the host webpage."
     ]
   }
