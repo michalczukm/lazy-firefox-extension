@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pl" class="lazy-theme" data-lazy-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Ustawienia stron · lazy</title>
+  <link rel="icon" href="icons/dots.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/lazy-theme/theme.css">
+  <link rel="stylesheet" href="settings.css">
+  <script src="settings.js" type="module"></script>
+</head>
+<body>
+  <a class="lazy-skip-link" href="#main">Przejdź do ustawień</a>
+  <div class="lazy-page settings-page">
+    <header class="settings-header">
+      <a class="lazy-wordmark" href="dashboard.html" aria-label="lazy — strona startowa">lazy<span aria-hidden="true">.</span></a>
+      <a class="back-link" href="dashboard.html">Wróć do pulpitu</a>
+    </header>
+    <main id="main">
+      <h1 class="lazy-heading">Ustawienia stron</h1>
+      <p class="intro">Dodaj własne strony do menu i pulpitu w tej przeglądarce.</p>
+      <form id="add-link" novalidate>
+        <fieldset id="link-fields" disabled>
+          <div class="lazy-field-group">
+            <label class="lazy-label" for="link-label">Nazwa strony</label>
+            <input id="link-label" name="label" class="lazy-field" type="text" maxlength="80" required autocomplete="off" placeholder="np. Kalendarz" aria-describedby="settings-status">
+          </div>
+          <div class="lazy-field-group">
+            <label class="lazy-label" for="link-url">Adres strony</label>
+            <input id="link-url" name="url" class="lazy-field" type="url" inputmode="url" maxlength="2048" required spellcheck="false" placeholder="https://example.com/" aria-describedby="settings-status">
+          </div>
+          <button class="lazy-button lazy-button--primary" type="submit">Dodaj stronę</button>
+        </fieldset>
+      </form>
+      <p id="settings-status" class="settings-status" role="status">Wczytywanie zapisanych stron…</p>
+      <section class="custom-sites" aria-labelledby="custom-heading">
+        <h2 id="custom-heading" class="lazy-title">Własne strony</h2>
+        <p class="lazy-note">Każda własna strona ma stałą ikonę koła zębatego. Wbudowane strony pozostają bez zmian.</p>
+        <p id="empty-links" class="empty-links" hidden>Nie masz jeszcze własnych stron. Dodaj pierwszą powyżej.</p>
+        <ul id="custom-links"></ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

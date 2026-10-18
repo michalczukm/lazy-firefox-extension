@@ -23,7 +23,8 @@ dt { font-size: 15px; color: var(--lazy-color-muted); line-height: 1.4; }
 .weather[data-state='stale'] .status, .weather[data-state='unavailable'] .status { color: var(--lazy-color-error); }
 .attribution { display: inline-flex; align-items: center; min-height: 28px; color: var(--lazy-color-muted); font-size: 13px; line-height: var(--lazy-leading-body); }
 .destinations { min-width: 0; padding-top: var(--lazy-space-1); }
-.destinations h2 { font-size: var(--lazy-text-heading); margin-bottom: 26px; }
+.sites-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--lazy-space-3); min-height: 48px; margin-bottom: 6px; }
+.destinations h2 { font-size: var(--lazy-text-heading); }
 .site-link { min-height: 122px; }
 .menu-note { font-size: var(--lazy-text-body); line-height: 1.6; margin-top: 28px; max-width: 32ch; }
 .skip-link { z-index: 2147483647; }
@@ -43,7 +44,6 @@ dt { font-size: 15px; color: var(--lazy-color-muted); line-height: 1.4; }
   .temperature { font-size: clamp(72px, 21vw, var(--lazy-text-display)); }
   .unit { font-size: 28px; vertical-align: 18px; }
   .forecast { margin-top: 28px; }
-  .destinations h2 { margin-bottom: var(--lazy-space-5); }
   .site-link { min-height: 110px; gap: 18px; }
 }
 @media (max-width: 350px) {

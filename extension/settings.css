@@ -1,0 +1,27 @@
+.settings-page { max-width: 880px; }
+.settings-header { display: flex; align-items: center; justify-content: space-between; gap: var(--lazy-space-4); margin-bottom: var(--lazy-space-12); }
+.back-link { display: inline-flex; align-items: center; min-height: var(--lazy-control-size); }
+.intro { margin-top: var(--lazy-space-3); color: var(--lazy-color-muted); max-width: var(--lazy-reading-width); }
+#add-link { margin-top: var(--lazy-space-8); }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) auto; align-items: end; gap: var(--lazy-space-4); }
+fieldset .lazy-button--primary { min-height: var(--lazy-control-size); font-size: var(--lazy-text-body); }
+.settings-status { min-height: 1.5em; margin-top: var(--lazy-space-3); overflow-wrap: anywhere; }
+.settings-status[data-error='true'] { color: var(--lazy-color-error); }
+.custom-sites { margin-top: var(--lazy-space-12); }
+.custom-sites > .lazy-note { margin-top: var(--lazy-space-2); }
+.empty-links { color: var(--lazy-color-muted); padding-block: var(--lazy-space-6); }
+ul { list-style: none; padding: 0; margin: var(--lazy-space-5) 0 0; }
+li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: var(--lazy-space-4); padding-block: var(--lazy-space-5); border-top: 1px solid var(--lazy-color-line); }
+li:last-child { border-bottom: 1px solid var(--lazy-color-line); }
+li > svg { color: var(--lazy-color-accent); }
+.custom-name { display: block; font-weight: var(--lazy-font-semibold); overflow-wrap: anywhere; }
+.custom-url { display: block; margin-top: var(--lazy-space-1); font-size: var(--lazy-text-small); color: var(--lazy-color-muted); overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  fieldset { grid-template-columns: minmax(0, 1fr); }
+  fieldset .lazy-button--primary { justify-self: start; }
+  .settings-header { margin-bottom: var(--lazy-space-8); }
+}
+@media (max-width: 350px) {
+  li { gap: var(--lazy-space-2); }
+  li .lazy-button { padding-inline: var(--lazy-space-3); }
+}

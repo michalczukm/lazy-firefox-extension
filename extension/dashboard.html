@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pl" class="lazy-theme" data-lazy-theme="light">
+<html lang="pl" class="lazy-theme" data-lazy-theme="light" data-lazy-dashboard>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -43,7 +43,11 @@
         </div>
       </section>
       <nav class="destinations" aria-labelledby="sites-heading">
-        <h2 id="sites-heading" class="lazy-title">Twoje strony</h2>
+        <div class="sites-heading">
+          <h2 id="sites-heading" class="lazy-title">Twoje strony</h2>
+          <button id="open-settings" class="lazy-button lazy-button--icon" type="button" aria-label="Ustawienia stron" title="Ustawienia stron" hidden></button>
+        </div>
+        <p id="links-status" class="lazy-error" role="status" hidden></p>
         <div id="site-links" class="site-links"></div>
         <p class="lazy-note menu-note">Menu dziewięciu kropek masz zawsze pod ręką — także na innych stronach.</p>
       </nav>

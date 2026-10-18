@@ -11,7 +11,7 @@ test('site build serves the shared dashboard at root without extension-only file
   for (const file of ['dashboard.js', 'dashboard.css', 'weather.js', 'links.js', 'launcher.js', 'launcher-theme.js', 'fonts/atkinson-400.ttf', 'fonts/OFL.txt', 'icons/dots.svg', 'icons/LICENSE-lucide.txt', 'vendor/lazy-theme/theme.css', 'vendor/lazy-theme/css/tokens.css', 'vendor/lazy-theme/fonts/atkinson-400.ttf', 'vendor/lazy-theme/fonts/OFL.txt', 'vendor/lazy-theme/LICENSE']) {
     assert.ok(existsSync(`dist/site/${file}`), `Required asset: ${file}`);
   }
-  for (const file of ['manifest.json', 'background.js', 'content.js']) {
+  for (const file of ['manifest.json', 'background.js', 'content.js', 'settings.html', 'settings.js', 'settings.css']) {
     assert.equal(existsSync(`dist/site/${file}`), false, `Extension-only file excluded: ${file}`);
   }
   const headers = readFileSync('dist/site/_headers', 'utf8');

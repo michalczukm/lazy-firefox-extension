@@ -18,17 +18,55 @@ const storage = globalThis.browser?.storage.local || {
   async set(values) { for (const [key, value] of Object.entries(values)) localStorage.setItem(key, JSON.stringify(value)); },
 };
 
-globalThis.LazyLauncher.mount({ onHome: () => { location.href = 'dashboard.html'; } });
+const nativeExtension = Boolean(globalThis.browser?.runtime?.sendMessage);
+const openSettings = () => nativeExtension ? browser.runtime.openOptionsPage() :
+  window.dispatchEvent(new CustomEvent('lazy-start:open-settings'));
+const launcher = globalThis.LazyLauncher.mount({
+  onHome: () => { location.href = 'dashboard.html'; }, onSettings: openSettings, settingsAvailable: nativeExtension,
+});
 refresh.append(globalThis.LazyLauncher.icon('refresh'));
+$('open-settings').append(globalThis.LazyLauncher.icon('settings'));
+$('open-settings').hidden = !nativeExtension;
+$('open-settings').addEventListener('click', openSettings);
 
-for (const link of globalThis.LAZY_LINKS) {
-  const a = document.createElement('a'); a.className = 'lazy-link-row site-link'; a.href = link.url;
-  const text = document.createElement('span');
-  const title = document.createElement('strong'); title.textContent = link.label;
-  const description = document.createElement('small'); description.textContent = link.description;
-  text.append(title, description);
-  a.append(globalThis.LazyLauncher.icon(link.icon), text, globalThis.LazyLauncher.icon('arrow'));
-  $('site-links').append(a);
+function renderLinks(links) {
+  $('site-links').replaceChildren();
+  for (const link of links) {
+    const a = document.createElement('a'); a.className = 'lazy-link-row site-link'; a.href = link.url;
+    const text = document.createElement('span');
+    const title = document.createElement('strong'); title.textContent = link.label;
+    const description = document.createElement('small'); description.textContent = link.description;
+    text.append(title, description);
+    a.append(globalThis.LazyLauncher.icon(link.icon), text, globalThis.LazyLauncher.icon('arrow'));
+    $('site-links').append(a);
+  }
+  globalThis.LazyLauncher.setLinks(launcher, links);
+}
+renderLinks(globalThis.LAZY_LINKS);
+
+function receiveLinks(result) {
+  try {
+    if (!result || typeof result.ok !== 'boolean') return;
+    if (result.ok) renderLinks(globalThis.LazyLinks.merge(result.customLinks));
+    $('links-status').textContent = result.ok ? '' : 'Nie udało się wczytać własnych stron. Otwórz ustawienia i spróbuj ponownie.';
+    $('links-status').hidden = result.ok;
+    $('open-settings').hidden = false;
+    globalThis.LazyLauncher.setSettingsAvailable(launcher, true);
+  } catch { /* Ignore malformed page events without changing built-in links. */ }
+}
+if (nativeExtension) {
+  const updateLinks = () => browser.runtime.sendMessage({ type: 'get-custom-links' })
+    .then(receiveLinks).catch(() => receiveLinks({ ok: false }));
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && Object.hasOwn(changes, 'customLinks')) updateLinks();
+  });
+  updateLinks();
+} else {
+  window.addEventListener('lazy-start:links', event => {
+    if (typeof event.detail !== 'string') return;
+    try { receiveLinks(JSON.parse(event.detail)); } catch { /* Invalid bridge payload. */ }
+  });
+  window.dispatchEvent(new CustomEvent('lazy-start:request-links'));
 }
 
 function updateDate() {

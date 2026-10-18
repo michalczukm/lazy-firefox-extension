@@ -1,6 +1,6 @@
 {
   "name": "lazy-firefox-extension",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.8.0",
@@ -9,6 +9,7 @@
     "test": "pnpm build:theme && node --test tests/*.test.js",
     "test:browser": "pnpm build:theme && node scripts/browser-check.mjs",
     "test:site": "pnpm build:site && node scripts/browser-check.mjs --site",
+    "test:settings": "pnpm build:site && node scripts/settings-check.mjs",
     "lint": "web-ext lint --source-dir extension --warnings-as-errors",
     "build": "pnpm build:theme && web-ext build --source-dir extension --artifacts-dir dist --overwrite-dest",
     "build:theme": "node scripts/copy-theme.mjs",

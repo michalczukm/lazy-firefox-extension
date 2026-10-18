@@ -11,6 +11,8 @@
     refresh: ['M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8', 'M21 3v5h-5', 'M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16', 'M8 16H3v5'],
     // Lucide shopping-basket (ISC), same source revision as refresh-cw above.
     basket: ['m15 11-1 9', 'm19 11-4-7', 'M2 11h20', 'm3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4', 'M4.5 15.5h15', 'm5 11 4-7', 'm9 11 1 9'],
+    // Lucide settings (ISC), same source revision; custom links always use this icon.
+    settings: ['M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915'],
     cloud: ['M7 18h11a4 4 0 0 0 0-8h-.4A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9Z'],
     sun: ['M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5'],
     rain: ['M7 14h11a4 4 0 0 0 0-8h-.4A6 6 0 0 0 6 5a4.5 4.5 0 0 0 1 9Z', 'm8 18-1 3m6-3-1 3m6-3-1 3'],
@@ -21,7 +23,7 @@
     svg.setAttribute('viewBox', '0 0 24 24');
     svg.setAttribute('width', '24'); svg.setAttribute('height', '24');
     svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
-    svg.setAttribute('stroke-width', ['refresh', 'basket'].includes(name) ? '2' : '1.7'); svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-width', ['refresh', 'basket', 'settings'].includes(name) ? '2' : '1.7'); svg.setAttribute('stroke-linecap', 'round');
     svg.setAttribute('stroke-linejoin', 'round'); svg.setAttribute('aria-hidden', 'true');
     if (name === 'dots') {
       for (const x of [5, 12, 19]) for (const y of [5, 12, 19]) {
@@ -33,9 +35,9 @@
       for (const d of paths[name] || paths.cloud) {
         const path = document.createElementNS(ns, 'path'); path.setAttribute('d', d); svg.append(path);
       }
-      if (name === 'sun') {
+      if (name === 'sun' || name === 'settings') {
         const circle = document.createElementNS(ns, 'circle');
-        circle.setAttribute('cx', '12'); circle.setAttribute('cy', '12'); circle.setAttribute('r', '4');
+        circle.setAttribute('cx', '12'); circle.setAttribute('cy', '12'); circle.setAttribute('r', name === 'sun' ? '4' : '3');
         svg.append(circle);
       }
     }
@@ -43,10 +45,14 @@
   }
 
   let instance;
-  function mount({ onHome }) {
+  const roots = new WeakMap();
+  const rootFor = host => roots.get(host) || host.shadowRoot;
+  function mount({ onHome, onSettings, links = globalThis.LAZY_LINKS, settingsAvailable = Boolean(onSettings), shadowMode = 'open' }) {
     if (instance?.isConnected) return instance;
     const existing = document.getElementById('lazy-start-launcher');
-    if (existing?.shadowRoot?.querySelector('.trigger')) return existing;
+    // Unrelated pages must not supply an open root that receives private links.
+    if (shadowMode === 'closed') existing?.remove();
+    else if (existing?.shadowRoot?.querySelector('.trigger')) return existing;
     const host = document.createElement('div');
     host.id = 'lazy-start-launcher'; host.lang = 'pl';
     host.dataset.lazyTheme = document.documentElement.dataset.lazyTheme === 'dark' ? 'dark' : 'light';
@@ -57,7 +63,8 @@
       'pointer-events': 'none', 'color-scheme': 'var(--lazy-scheme)',
     };
     for (const [key, value] of Object.entries(properties)) host.style.setProperty(key, value, 'important');
-    const shadow = host.attachShadow({ mode: 'open' });
+    const shadow = host.attachShadow({ mode: shadowMode });
+    roots.set(host, shadow);
     const style = document.createElement('style');
     style.textContent = globalThis.LAZY_LAUNCHER_TOKENS + `
       :host { color-scheme: var(--lazy-scheme); }
@@ -81,6 +88,7 @@
         min-height: 48px; padding: 10px 14px; white-space: nowrap; text-decoration: none;
         border-radius: 8px; }
       nav svg { width: 19px; height: 19px; flex-shrink: 0; }
+      .site-items { display: contents; }
       .fullscreen { margin-left: 4px; border-left: 1px solid var(--lazy-color-line); border-radius: 0 8px 8px 0; }
       .message { pointer-events: auto; background: var(--lazy-color-surface); color: var(--lazy-color-ink); font: 15px/1.5 system-ui, sans-serif;
         padding: 12px 16px; margin: 8px 0 0 auto; max-width: 320px; border-radius: 8px;
@@ -102,11 +110,8 @@
     home.addEventListener('click', async () => {
       try { await onHome(); } catch { showMessage('Nie udało się otworzyć Startu. Spróbuj ponownie.'); }
     });
-    nav.append(home);
-    for (const link of globalThis.LAZY_LINKS) {
-      const a = document.createElement('a'); a.href = link.url;
-      a.append(icon(link.icon), link.label); nav.append(a);
-    }
+    const siteItems = document.createElement('span'); siteItems.className = 'site-items';
+    nav.append(home, siteItems);
     const fullscreen = document.createElement('button'); fullscreen.type = 'button'; fullscreen.className = 'fullscreen';
     const fullscreenSupported = Boolean(document.fullscreenEnabled && document.documentElement.requestFullscreen);
     fullscreen.hidden = !fullscreenSupported;
@@ -122,6 +127,13 @@
       } catch { showMessage('Firefox nie pozwolił włączyć pełnego ekranu na tej stronie.'); }
     });
     updateFullscreen(); nav.append(fullscreen);
+    const settings = document.createElement('button'); settings.type = 'button'; settings.className = 'settings';
+    settings.hidden = !settingsAvailable;
+    settings.append(icon('settings'), 'Ustawienia');
+    settings.addEventListener('click', async () => {
+      try { await onSettings?.(); } catch { showMessage('Nie udało się otworzyć ustawień. Spróbuj ponownie.'); }
+    });
+    nav.append(settings);
     function showMessage(text) { message.textContent = text; message.hidden = false; }
     function setOpen(open, restoreFocus = false) {
       nav.hidden = !open; trigger.setAttribute('aria-expanded', String(open));
@@ -141,8 +153,24 @@
     });
     document.addEventListener('fullscreenchange', updateFullscreen);
     bar.append(nav, trigger); shadow.append(style, bar, message);
-    document.documentElement.append(host); instance = host;
+    document.documentElement.append(host); instance = host; setLinks(host, links);
     return host;
   }
-  globalThis.LazyLauncher = Object.freeze({ mount, icon });
+  function setLinks(host, links) {
+    const items = rootFor(host)?.querySelector('.site-items');
+    if (!items) return;
+    items.replaceChildren(...links.map(link => {
+      const a = document.createElement('a'); a.href = link.url;
+      a.append(icon(link.icon), link.label); return a;
+    }));
+  }
+  function setSettingsAvailable(host, available) {
+    const button = rootFor(host)?.querySelector('.settings');
+    if (button) button.hidden = !available;
+  }
+  function notify(host, text) {
+    const message = rootFor(host)?.querySelector('.message');
+    if (message) { message.textContent = text; message.hidden = !text; }
+  }
+  globalThis.LazyLauncher = Object.freeze({ mount, icon, setLinks, setSettingsAvailable, notify });
 })();
