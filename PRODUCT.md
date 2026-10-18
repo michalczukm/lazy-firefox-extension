@@ -22,7 +22,7 @@ no public add-on store listing or automated distribution is required.
   pages, including websites outside the fixed destination list.
 - A horizontal menu of fixed links, shared with a dashboard.
 - Confirmed destinations: `https://lazy-diet.workers.dev/`,
-  `https://lazy-tea.pages.dev/`, and `https://lazy-shopping.michalczukm.xyz/`
+  `https://lazy-tea.pages.dev/`, and `https://lazy-list.michalczukm.xyz/`
   (label `lazy-list`). The user originally envisaged four or five;
   additional destinations remain unnamed and must not be fabricated.
 - Dashboard: Gdańsk weather on the left and large destination links on the right.
