@@ -14,7 +14,7 @@ test('site build serves the dashboard and preserves the signed download without 
   for (const file of ['manifest.json', 'background.js', 'content.js', 'settings.html', 'settings.js', 'settings.css']) {
     assert.equal(existsSync(`dist/site/${file}`), false, `Extension-only file excluded: ${file}`);
   }
-  const download = 'downloads/lazy-start-1.3.1.xpi';
+  const download = 'downloads/lazy-start-1.4.0.xpi';
   assert.ok(existsSync(`dist/site/${download}`), 'Signed extension is available in a clean site build');
   assert.deepEqual(readFileSync(`dist/site/${download}`), readFileSync(`site/${download}`), 'Signing bytes stay unchanged');
   const headers = readFileSync('dist/site/_headers', 'utf8');
