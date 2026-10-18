@@ -45,8 +45,10 @@ no public add-on store listing or automated distribution is required.
   both dashboards update from extension storage. The hosted dashboard requires
   the installed extension and receives data through a restricted local bridge.
 - Normal destination taps in either dashboard or the injected menu activate an
-  existing tab on the same origin in the current Firefox window, preserving its
-  URL and state. If none exists, create a tab without replacing the dashboard or
+  existing tab on the same origin across Firefox windows, preserving its URL and
+  state. Normal and private browsing stay separate; prefer the current window and
+  focus another window where supported. Android's per-tab windows use this same
+  flow. If none exists, create a tab without replacing the dashboard or
   current app. Start and the toolbar action reuse a hosted or packaged dashboard
   tab, otherwise create `https://lazy.michalczukm.xyz/`. Rapid requests are serialized.
   Modified clicks retain native behavior; pre-existing duplicates stay open.
@@ -94,6 +96,9 @@ tablet. Test navigation, dashboard access, offline weather, and fullscreen there
 - Mozilla documents partial `tabs.query()` support on Firefox Android: some open
   tabs may be omitted. Tab reuse needs signed-extension checks on the target tablet,
   including background/restored tabs. Chromium fixtures cannot establish this.
+- Firefox Android cannot create private tabs through the extension API. Existing
+  private tabs can be reused; a missing private destination reports an error
+  instead of opening a normal tab.
 - Start opens the hosted dashboard when none is open, which requires network
   access for its first load. The bundled dashboard remains available directly.
 - Android device locking requires a separate native component with

@@ -35,7 +35,7 @@ Desktop Firefox 140+: open `about:debugging#/runtime/this-firefox`, choose **Loa
 ## Notes
 
 - Add personal links through **Ustawienia** (cog). [Guide](docs/custom-links.md). Built-ins stay in [extension/links.js](extension/links.js).
-- With extension 1.3.0, normal app taps reuse an existing tab in the current Firefox window, preserving its route and state. Missing apps open in new tabs. **Start** and the toolbar action reuse a dashboard tab or open `https://lazy.michalczukm.xyz/`. Matching uses the exact origin (scheme, host and port); custom links on the same origin share a tab. Modified clicks retain Firefox's native behavior. Existing duplicates are not closed.
+- With extension 1.3.1, normal app taps search across Firefox tabs, preserving the matched tab's route and state. Normal and private tabs stay separate; a match in the current window is preferred, and desktop windows are focused when supported. This also handles Android's one-window-per-tab model. Missing apps open in new tabs. **Start** and the toolbar action reuse a dashboard tab or open `https://lazy.michalczukm.xyz/`. Matching uses the exact origin (scheme, host and port); custom links on the same origin share a tab. Modified clicks retain Firefox's native behavior. Existing duplicates are not closed.
 - The `tabs` permission lets the background script read open-tab URLs locally for matching. URLs are not uploaded. Without a compatible extension, the website keeps ordinary link navigation.
 - Shared design: [lazy-theme v0.1.0](https://github.com/michalczukm/lazy-theme). [Migration and rollback](docs/theme-migration.md).
 - Open-Meteo weather refreshes every 15 minutes while visible. Cached data works offline; no device geolocation.

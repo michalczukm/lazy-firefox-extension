@@ -13,7 +13,7 @@ export async function extensionFixture(origin) {
         id: 'lazy-ui-test', getURL: file => new URL(file, base + '/').href,
         onMessage: { addListener: listener => { receiver = listener; } },
         sendMessage: message => {
-          const result = Promise.resolve(receiver(message, { id: 'lazy-ui-test', url: location.href, frameId: 0, tab: { id: 1, windowId: 1 } }));
+          const result = Promise.resolve(receiver(message, { id: 'lazy-ui-test', url: location.href, frameId: 0, tab: { id: 1, windowId: 1, incognito: false } }));
           if (['open-dashboard', 'open-link'].includes(message.type)) window.navigationComplete = result;
           return result;
         },
@@ -37,13 +37,13 @@ export async function extensionFixture(origin) {
       browserAction: { onClicked: { addListener() {} } },
       tabs: {
         onUpdated: { addListener() {} }, onRemoved: { addListener() {} },
-        query: async () => structuredClone(window.fixtureTabs),
+        query: async () => structuredClone(window.fixtureTabs.map(tab => ({ incognito: false, ...tab }))),
         update: async (id, value) => {
           if (window.failNavigation) throw new Error('Activation fixture');
           return Object.assign(window.fixtureTabs.find(tab => tab.id === id), value);
         },
         create: async value => {
-          const tab = { id: window.fixtureTabs.length + 100, windowId: 1, ...value };
+          const tab = { id: window.fixtureTabs.length + 100, windowId: 1, incognito: false, ...value };
           window.fixtureTabs.push(tab); return tab;
         },
       },

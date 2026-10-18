@@ -18,8 +18,11 @@ function navigationRequest(message, source) {
       throw new Error('Unknown destination');
     }
     const origin = new URL(url).origin;
-    const scope = Number.isInteger(source?.windowId) ? { windowId: source.windowId } : { currentWindow: true };
-    const tabs = await browser.tabs.query(scope);
+    source ??= (await browser.tabs.query({ active: true, currentWindow: true }))[0];
+    if (typeof source?.incognito !== 'boolean') throw new Error('Missing navigation context');
+    const supportsWindows = typeof browser.windows?.update === 'function';
+    // Android represents each tab as its own window: search across windows.
+    const tabs = (await browser.tabs.query({})).filter(tab => tab.incognito === source.incognito);
     // Firefox can resolve create() while the tab still reports about:blank.
     // Only reserve our own new tabs, and stop reserving once their URL is known.
     for (const tab of tabs) {
@@ -30,10 +33,16 @@ function navigationRequest(message, source) {
       if (home) return value === packagedDashboardUrl || globalThis.LazyLinks.isHostedDashboard(value);
       try { return new URL(value).origin === origin; } catch { return false; }
     };
-    const tab = tabs.find(tab => matches(tab.pendingUrl || tab.url) || matches(openingTabs.get(tab.id)));
-    if (tab) await browser.tabs.update(tab.id, { active: true });
-    else {
-      const created = await browser.tabs.create({ url, active: true, ...(Number.isInteger(source?.windowId) ? { windowId: source.windowId } : {}) });
+    const candidates = tabs.filter(tab => matches(tab.pendingUrl || tab.url) || matches(openingTabs.get(tab.id)));
+    const tab = candidates.find(tab => tab.windowId === source.windowId) || candidates[0];
+    if (tab) {
+      await browser.tabs.update(tab.id, { active: true });
+      if (supportsWindows && tab.windowId !== source.windowId) await browser.windows.update(tab.windowId, { focused: true });
+    } else {
+      const windowId = supportsWindows && Number.isInteger(source.windowId) ? source.windowId : undefined;
+      // Firefox Android cannot create private tabs through this API.
+      if (source.incognito && windowId === undefined) throw new Error('Private tab creation unavailable');
+      const created = await browser.tabs.create({ url, active: true, ...(windowId !== undefined ? { windowId } : {}) });
       openingTabs.set(created.id, url);
     }
     return { ok: true };
