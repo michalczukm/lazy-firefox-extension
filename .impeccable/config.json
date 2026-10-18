@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-10-17T22:43:09.091Z",
         "reason": "User confirmed the proposed warm neutral background and dark green palette by approving the dashboard design with “do it” on 2026-10-18; recorded in PRODUCT.md and DESIGN.md."
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "extension/settings.html"
+        ],
+        "createdAt": "2026-10-18T00:12:46.904Z",
+        "reason": "Agent verified computed styles with agent-browser: body 16px, h2 18px, h1 36px desktop and 24px at 390px viewport. Imported lazy-theme styles provide a heading step of at least 1.33; detector incorrectly reports every role as 16px."
       }
     ]
   }
