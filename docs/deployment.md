@@ -58,3 +58,7 @@ entry points and manifest are excluded from the public website build.
 
 The CI does not sign, publish, or install the Firefox extension. Those operations
 remain manual and independent of website deployment.
+
+The hosted dashboard's custom links come from the installed extension's local
+profile. They are not deployment data or Cloudflare secrets. See the
+[custom-link settings guide](custom-links.md).

@@ -79,9 +79,9 @@ horizontal strip. Respect reduced motion and safe-area insets.
 - No persistent kiosk mode or Android system UI control.
 - No Android homepage/new-tab override, startup redirection workaround,
   injected button on browser-internal/restricted pages, or global floating UI.
-- No settings editor, user-defined destinations, accounts, sync, forecast
-  charts or geolocation. A later user request adds standalone Cloudflare Pages
-  hosting; see [deployment documentation](../../deployment.md).
+- No accounts, sync, forecast charts or geolocation. Later user requests add
+  standalone Cloudflare Pages hosting and custom browser link settings; see
+  [deployment documentation](../../deployment.md) and [settings](../../custom-links.md).
 - Signing/distribution and physical Firefox Android verification remain
   explicit release steps; this machine has desktop Firefox but no adb or
   attached Android test environment.

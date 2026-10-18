@@ -37,6 +37,10 @@ no public add-on store listing or automated distribution is required.
   Production URL: `https://lazy-firefox-extension.pages.dev/`.
 - All interface text is Polish.
 - All documentation is English. Quoted interface labels retain their Polish wording.
+- Settings add or remove named HTTP/HTTPS links in this Firefox profile. Custom
+  links use one fixed cog icon; built-ins remain immutable. Existing menus and
+  both dashboards update from extension storage. The hosted dashboard requires
+  the installed extension and receives data through a restricted local bridge.
 
 ## Weather and Privacy
 
@@ -48,6 +52,9 @@ valid result with its timestamp; previous-day forecasts show their actual date.
 The extension stores weather locally in `browser.storage.local`; the standalone
 website and development preview use `localStorage`. It does not transmit page contents, browsing history,
 or device location. There are no accounts, analytics, or remote scripts.
+Custom links use a separate `customLinks` key in extension storage. Only the
+extension settings page can write them; the hosted dashboard has no write API.
+Unrelated page scripts cannot inspect the injected menu's closed Shadow DOM.
 
 ## Installation and Verification
 
