@@ -68,7 +68,7 @@ not sign or install extensions; signing remains a manual Mozilla submission.
 ## Signed extension download
 
 `https://lazy.michalczukm.xyz/firefox-extension` redirects with HTTP 302 to the
-latest published signed XPI, currently `/downloads/lazy-start-1.3.0.xpi`.
+latest published signed XPI, currently `/downloads/lazy-start-1.3.1.xpi`.
 This is a static Pages download, with attachment headers and an immutable,
 versioned filename. No R2 bucket or Pages Function is needed.
 
