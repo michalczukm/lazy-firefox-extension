@@ -33,6 +33,29 @@ async function activateApp(selector, id) {
   await evaluate('window.navigationComplete');
   assert.equal(await evaluate(`window.fixtureTabs.find(tab => tab.id === ${id}).active`), true);
 }
+async function mockFullscreen() {
+  await evaluate(`(() => {
+    window.fullscreenCalls = 0; window.pageTaps = 0; window.testFullscreen = null;
+    Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: true });
+    Object.defineProperty(document, 'fullscreenElement', { configurable: true, get: () => window.testFullscreen });
+    document.documentElement.requestFullscreen = () => {
+      window.fullscreenCalls++;
+      window.fullscreenHadActivation = navigator.userActivation.isActive;
+      if (window.rejectFullscreen) return Promise.reject(new Error('Fullscreen fixture'));
+      window.testFullscreen = document.documentElement;
+      document.dispatchEvent(new Event('fullscreenchange'));
+      return Promise.resolve();
+    };
+    document.exitFullscreen = async () => {
+      window.testFullscreen = null; document.dispatchEvent(new Event('fullscreenchange'));
+    };
+    const button = document.createElement('button'); button.id = 'page-action'; button.textContent = 'Akcja strony';
+    button.addEventListener('click', () => window.pageTaps++); document.body.append(button);
+    const component = document.createElement('div'); component.id = 'shadow-fields';
+    const input = document.createElement('input'); input.id = 'shadow-input'; input.setAttribute('aria-label', 'Pole komponentu');
+    component.attachShadow({mode:'open'}).append(input); document.body.append(component);
+  })()`);
+}
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css', '.svg': 'image/svg+xml', '.ttf': 'font/ttf' };
 const server = createServer(async (request, response) => {
   const path = new URL(request.url, 'http://localhost').pathname;
@@ -111,9 +134,53 @@ try {
   assert.equal(await evaluate('document.getElementById("lazy-start-launcher").shadowRoot.querySelector(".site-items a:last-child").href'), 'https://calendar.example/');
   await command('screenshot', '--full', resolve('.impeccable/review/custom-dashboard.png'));
   await command('press', 'Escape');
+  await mockFullscreen();
+  await clickNamed('Otwórz menu stron');
+  await clickNamed('Pełny ekran');
+  assert.equal(await evaluate('JSON.parse(localStorage.getItem("fullscreenIntent"))'), true, 'Packaged dashboard remembers fullscreen');
+  await evaluate('document.exitFullscreen()');
+  await command('press', 'Escape');
+  await activateApp('document.querySelector(".site-link")', 2);
+  await command('click', '.site-link:first-child');
+  await evaluate('window.navigationComplete');
+  assert.equal(await evaluate('window.fullscreenCalls'), 1, 'Dashboard navigation does not restore fullscreen on the departing page');
 
   await command('open', origin + '/host.html');
   await command('wait', '#lazy-start-launcher');
+  await mockFullscreen();
+  assert.equal(await evaluate('window.fullscreenCalls'), 0, 'Never requests fullscreen on page load');
+  await evaluate('document.getElementById("page-action").click()');
+  assert.equal(await evaluate('window.fullscreenCalls'), 0, 'Synthetic clicks cannot restore fullscreen');
+  await clickNamed('Pole komponentu', 'textbox');
+  assert.equal(await evaluate('window.fullscreenCalls'), 0, 'Shadow DOM form controls keep their gesture');
+  await evaluate('document.getElementById("page-action").addEventListener("click", event => event.preventDefault(), {once:true})');
+  await command('click', '#page-action');
+  assert.equal(await evaluate('window.fullscreenCalls'), 0, 'Page handlers can reserve their own gesture');
+  await command('click', '#page-action');
+  assert.equal(await evaluate('window.fullscreenCalls'), 1, 'First real destination tap restores fullscreen');
+  assert.equal(await evaluate('window.fullscreenHadActivation'), true);
+  assert.equal(await evaluate('window.pageTaps'), 3, 'Restoring fullscreen preserves the page action');
+  await clickNamed('Otwórz menu stron');
+  await clickNamed('Opuść pełny ekran');
+  assert.equal(await evaluate('JSON.parse(localStorage.getItem("fullscreenIntent"))'), false, 'Explicit exit disables restoration');
+  await command('press', 'Escape');
+  await command('click', '#page-action');
+  assert.equal(await evaluate('window.fullscreenCalls'), 1, 'No re-entry after opting out');
+  await clickNamed('Otwórz menu stron');
+  await clickNamed('Pełny ekran');
+  await evaluate('document.exitFullscreen(); window.rejectFullscreen = true');
+  await command('press', 'Escape');
+  await command('click', '#page-action');
+  const rejectedCalls = await evaluate('window.fullscreenCalls');
+  assert.equal(rejectedCalls, 3, 'Restoration was attempted after the automatic exit');
+  assert.ok((await command('snapshot')).includes('Firefox nie pozwolił przywrócić'), 'Rejected fullscreen has accessible feedback');
+  await command('click', '#page-action');
+  assert.equal(await evaluate('window.fullscreenCalls'), rejectedCalls, 'Rejected restoration does not retry on every tap');
+  await clickNamed('Otwórz menu stron');
+  await clickNamed('Wyłącz przywracanie');
+  await command('press', 'Escape');
+  await evaluate('window.dispatchEvent(new CustomEvent("lazy-start:fullscreen-intent", {detail:"true"}))');
+  assert.equal(await evaluate('JSON.parse(localStorage.getItem("fullscreenIntent"))'), false, 'Other sites cannot change the fullscreen preference through page events');
   await clickNamed('Otwórz menu stron');
   assert.equal(await evaluate('document.getElementById("lazy-start-launcher").shadowRoot'), null, 'Other sites cannot read private menu links');
   assert.ok((await command('snapshot', '-i')).includes('link "Kalendarz"'), 'Private menu contains custom link');
@@ -183,6 +250,27 @@ try {
   await evaluate(`window.extensionFixture.storage.local.set({customLinks: ${JSON.stringify(saved)}})`);
   await command('wait', '.site-link:nth-child(4)');
   await command('screenshot', '--full', resolve('.impeccable/review/hosted-custom-dashboard.png'));
+  await mockFullscreen();
+  await clickNamed('Otwórz menu stron');
+  await clickNamed('Pełny ekran');
+  assert.equal(await evaluate('JSON.parse(localStorage.getItem("fullscreenIntent"))'), true, 'Hosted dashboard writes fullscreen intent through the trusted bridge');
+  await evaluate('document.exitFullscreen()');
+  await command('press', 'Escape');
+  await activateApp('document.querySelector(".site-link")', 2);
+  await command('click', '.site-link:first-child');
+  await evaluate('window.navigationComplete');
+  assert.equal(await evaluate('window.fullscreenCalls'), 1, 'Hosted dashboard link carries intent without restoring on departure');
+  await command('open', origin + '/host.html');
+  await command('wait', '#lazy-start-launcher');
+  await mockFullscreen();
+  await command('click', '#page-action');
+  assert.equal(await evaluate('window.fullscreenCalls'), 1, 'Destination restores after a hosted dashboard link');
+  await clickNamed('Otwórz menu stron');
+  await clickNamed('Opuść pełny ekran');
+  await command('open', origin + '/hosted/');
+  await command('wait', '.weather[data-state="fresh"]');
+  await evaluate(`(() => { const browser = window.extensionFixture; const location = { href: 'https://lazy.michalczukm.xyz/' }; ${content} })()`);
+  await command('wait', '.site-link:nth-child(4)');
   await command('click', '#open-settings');
   await command('wait', '#link-fields:not([disabled])');
   assert.equal(new URL(await evaluate('location.href')).pathname, '/settings.html');
@@ -199,7 +287,7 @@ try {
   await evaluate('window.failExtensionWrites = false');
   await clickNamed('Dodaj stronę');
   assert.equal(await evaluate('document.querySelectorAll("#custom-links li").length'), 1, 'Can retry failed save');
-  console.log('Settings acceptance passed: add/remove, persistence, validation, write errors, private menu, packaged/hosted tab reuse, Start, navigation errors, modified-click and older-extension fallback, trusted bridge, responsive layout, axe.');
+  console.log('Settings acceptance passed: settings, private menu, packaged/hosted tab reuse, fullscreen intent across dashboard navigation, first trusted tap, opt-out, rejection feedback, trusted bridge, responsive layout, axe.');
 } finally {
   await command('close'); server.close(); await rm(scratch, { recursive: true, force: true });
 }

@@ -29,7 +29,8 @@ the saved URLs. The hosted dashboard receives string-encoded, validated data
 through a local page/content-script bridge. The bridge runs only on HTTPS
 `lazy.michalczukm.xyz`, `lazy-firefox-extension.pages.dev` and the project's preview
 subdomains, at dashboard paths. It can request links, open extension settings,
-or request tab navigation; it cannot write links. Navigation accepts only configured
+request tab navigation, or exchange the boolean fullscreen-restoration preference;
+it cannot write links. Navigation accepts only configured
 destination URLs or the fixed dashboard action, never arbitrary page-supplied URLs.
 The bridge advertises navigation support so older extensions retain ordinary links.
 No custom URLs are uploaded to Cloudflare or synchronized to other browsers.

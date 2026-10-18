@@ -58,6 +58,8 @@ const shadow = 'document.querySelector("#lazy-start-launcher").shadowRoot';
 const scratch = await mkdtemp(resolve(tmpdir(), 'lazy-browser-'));
 const initScript = resolve(scratch, 'weather-fixture.js');
 await writeFile(initScript, `
+  // Safari can expose a browser global without the extension storage API.
+  ${standalone ? 'window.browser = { runtime: { sendMessage() { throw new Error("Partial browser global is not an extension"); } } };' : ''}
   window.weatherOffline = sessionStorage.getItem('weather-offline') === 'true';
   const originalFetch = window.fetch.bind(window);
   window.fetch = (url, options) => String(url).startsWith('https://api.open-meteo.com/')

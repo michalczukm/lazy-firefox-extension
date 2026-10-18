@@ -32,6 +32,14 @@ no public add-on store listing or automated distribution is required.
   and identify old data when fresh weather is unavailable.
 - A menu action opens the dashboard; an optional fullscreen toggle acts
   on the current webpage.
+- Successfully enabling fullscreen remembers `fullscreenIntent` in extension
+  local storage. After page navigation or tab switching, the first trusted,
+  unmodified content tap with available user activation attempts restoration.
+  Both dashboard links and the menu preserve this profile-wide preference.
+  The tap is not canceled; links, editable controls, form submission, media,
+  launcher controls and page-canceled gestures are excluded. Rejection shows a
+  message and does not retry every tap. The explicit exit/disable control turns
+  the preference off. Escape also does so when Firefox delivers it to the page.
 - The same dashboard is also a standalone Cloudflare Pages website. GitHub
   Actions verifies changes, deploys `main`, and deploys same-repository PR previews.
   Production URL: `https://lazy.michalczukm.xyz/`.
@@ -66,7 +74,7 @@ The extension stores weather locally in `browser.storage.local`; the standalone
 website and development preview use `localStorage`. It does not transmit page contents, browsing history,
 or device location. There are no accounts, analytics, or remote scripts.
 Custom links use a separate `customLinks` key in extension storage. Only the
-extension settings page can write them; the hosted dashboard has no write API.
+extension settings page can write them; the hosted dashboard has no custom-link write API.
 Unrelated page scripts cannot inspect the injected menu's closed Shadow DOM.
 
 ## Installation and Verification
@@ -92,7 +100,9 @@ tablet. Test navigation, dashboard access, offline weather, and fullscreen there
 - Host pages can remove injected DOM elements; the launcher is not an Android
   system overlay.
 - Fullscreen is temporary and may end on navigation, tab changes, or
-  switching apps. It does not enforce kiosk mode.
+  switching apps. Restoration requires a new eligible tap; it does not enforce
+  kiosk mode. Native browser/Android fullscreen exits are not always distinguishable
+  from automatic exits; use the launcher control to disable restoration reliably.
 - Mozilla documents partial `tabs.query()` support on Firefox Android: some open
   tabs may be omitted. Tab reuse needs signed-extension checks on the target tablet,
   including background/restored tabs. Chromium fixtures cannot establish this.

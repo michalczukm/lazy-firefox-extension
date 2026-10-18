@@ -9,8 +9,18 @@
     shadowMode: 'closed',
     onHome: () => navigate({ type: 'open-dashboard' }),
     onNavigate: url => navigate({ type: 'open-link', url }),
+    onFullscreenIntent: enabled => browser.storage.local.set({ fullscreenIntent: enabled }),
     onSettings: () => browser.runtime.sendMessage({ type: 'open-settings' }),
   });
+  function applyFullscreenIntent(enabled) {
+    if (hosted) window.dispatchEvent(new CustomEvent('lazy-start:fullscreen-state', { detail: JSON.stringify(enabled === true) }));
+    else globalThis.LazyLauncher.setFullscreenIntent(launcher, enabled);
+  }
+  function updateFullscreenIntent() {
+    return browser.storage.local.get('fullscreenIntent')
+      .then(result => applyFullscreenIntent(result.fullscreenIntent))
+      .catch(() => applyFullscreenIntent(false));
+  }
   async function updateLinks() {
     let result;
     try { result = await browser.runtime.sendMessage({ type: 'get-custom-links' }); }
@@ -26,6 +36,13 @@
     }
   }
   if (hosted) {
+    window.addEventListener('lazy-start:request-fullscreen-state', updateFullscreenIntent);
+    window.addEventListener('lazy-start:fullscreen-intent', event => {
+      if (!['true', 'false'].includes(event.detail)) return;
+      browser.storage.local.set({ fullscreenIntent: event.detail === 'true' }).catch(() => {
+        window.dispatchEvent(new CustomEvent('lazy-start:fullscreen-error'));
+      });
+    });
     window.addEventListener('lazy-start:navigate', event => {
       if (typeof event.detail !== 'string') return;
       let message;
@@ -42,6 +59,8 @@
   }
   browser.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && Object.hasOwn(changes, 'customLinks')) updateLinks();
+    if (area === 'local' && Object.hasOwn(changes, 'fullscreenIntent')) applyFullscreenIntent(changes.fullscreenIntent.newValue);
   });
+  updateFullscreenIntent();
   updateLinks();
 })();
