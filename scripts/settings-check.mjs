@@ -13,10 +13,25 @@ async function command(...args) {
   return (await execute('agent-browser', ['--session', session, ...args], { encoding: 'utf8', timeout: 30_000 })).stdout;
 }
 async function evaluate(source) { return JSON.parse(await command('--json', 'eval', source)).data.result; }
-async function clickNamed(name) {
-  const line = (await command('snapshot', '-i')).split('\n').find(line => line.includes(`button "${name}"`));
-  assert.ok(line, `Button exists: ${name}`);
+async function clickNamed(name, role = 'button') {
+  const line = (await command('snapshot', '-i')).split('\n').find(line => line.includes(`${role} "${name}"`));
+  assert.ok(line, `${role} exists: ${name}`);
   await command('click', '@' + line.match(/ref=(e\d+)/)[1]);
+}
+async function linkClick(selector, properties = {}) {
+  const intercepted = await evaluate(`(() => {
+    let intercepted;
+    window.addEventListener('click', event => { intercepted = event.defaultPrevented; event.preventDefault(); }, { once: true });
+    ${selector}.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true, ...${JSON.stringify(properties)} }));
+    return intercepted;
+  })()`);
+  return intercepted;
+}
+async function activateApp(selector, id) {
+  const intercepted = await linkClick(selector);
+  assert.equal(intercepted, true, 'Extension handles normal app taps');
+  await evaluate('window.navigationComplete');
+  assert.equal(await evaluate(`window.fixtureTabs.find(tab => tab.id === ${id}).active`), true);
 }
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css', '.svg': 'image/svg+xml', '.ttf': 'font/ttf' };
 const server = createServer(async (request, response) => {
@@ -86,7 +101,13 @@ try {
   assert.equal(await evaluate('document.querySelector(".site-link:last-child strong").textContent'), 'Kalendarz');
   assert.equal(await evaluate('document.querySelector(".site-link:last-child circle").getAttribute("r")'), '3');
   assert.equal(await evaluate('document.getElementById("open-settings").hidden'), false);
+  await evaluate('window.fixtureTabs.push({id:2,windowId:1,url:"https://lazy-diet.workers.dev/recipes/123"})');
+  await activateApp('document.querySelector(".site-link")', 2);
+  assert.equal(await evaluate('window.fixtureTabs[1].url'), 'https://lazy-diet.workers.dev/recipes/123');
+  assert.equal(new URL(await evaluate('location.href')).pathname, '/dashboard.html');
+  await evaluate('window.fixtureTabs[1].active = false');
   await clickNamed('Otwórz menu stron');
+  await activateApp('document.getElementById("lazy-start-launcher").shadowRoot.querySelector(".site-items a")', 2);
   assert.equal(await evaluate('document.getElementById("lazy-start-launcher").shadowRoot.querySelector(".site-items a:last-child").href'), 'https://calendar.example/');
   await command('screenshot', '--full', resolve('.impeccable/review/custom-dashboard.png'));
   await command('press', 'Escape');
@@ -96,6 +117,15 @@ try {
   await clickNamed('Otwórz menu stron');
   assert.equal(await evaluate('document.getElementById("lazy-start-launcher").shadowRoot'), null, 'Other sites cannot read private menu links');
   assert.ok((await command('snapshot', '-i')).includes('link "Kalendarz"'), 'Private menu contains custom link');
+  await evaluate('window.fixtureTabs.push({id:2,windowId:1,url:"https://lazy-diet.workers.dev/recipes/123"})');
+  await clickNamed('lazy-diet', 'link');
+  await evaluate('window.navigationComplete');
+  assert.equal(await evaluate('window.fixtureTabs[1].active'), true, 'Injected private menu reuses app tab');
+  assert.equal(await evaluate('window.fixtureTabs[1].url'), 'https://lazy-diet.workers.dev/recipes/123');
+  await clickNamed('Start');
+  await evaluate('window.navigationComplete');
+  assert.equal(await evaluate('window.fixtureTabs[2].url'), 'https://lazy.michalczukm.xyz/');
+  assert.equal(new URL(await evaluate('location.href')).pathname, '/host.html', 'Start preserves the current page');
   const profileLinks = await evaluate('JSON.parse(localStorage.getItem("customLinks"))');
   await evaluate('window.extensionFixture.storage.local.set({customLinks: []})');
   assert.equal((await command('snapshot', '-i')).includes('link "Kalendarz"'), false);
@@ -106,15 +136,43 @@ try {
   assert.equal(await evaluate('document.activeElement.id'), 'lazy-start-launcher', 'Focus returns inside the private launcher');
   await evaluate('window.dispatchEvent(new CustomEvent("lazy-start:open-settings"))');
   assert.equal(new URL(await evaluate('location.href')).pathname, '/host.html', 'Other sites cannot use hosted settings bridge');
+  await evaluate('window.dispatchEvent(new CustomEvent("lazy-start:navigate", {detail: JSON.stringify({type:"open-link",url:"https://lazy-tea.pages.dev/"})}))');
+  assert.equal(await evaluate('window.fixtureTabs.length'), 3, 'Other sites cannot use hosted navigation bridge');
 
   await command('open', origin + '/hosted/');
   await command('wait', '.weather[data-state="fresh"]');
   assert.equal(await evaluate('document.getElementById("open-settings").hidden'), true);
   assert.equal(await evaluate('document.querySelectorAll(".site-link").length'), 3);
+  assert.equal(await linkClick('document.querySelector(".site-link")'), false, 'Standalone links work without the extension');
+  await evaluate(`window.dispatchEvent(new CustomEvent('lazy-start:links', {detail: JSON.stringify({ok:true,customLinks:[]})}))`);
+  assert.equal(await linkClick('document.querySelector(".site-link")'), false, 'Older extensions without navigation support retain ordinary links');
   // Exercise real bridge code at a local origin; origin filtering is pinned by Node tests.
   const content = await readFile('extension/content.js', 'utf8');
-  await evaluate(`(() => { const browser = window.extensionFixture; const location = { href: 'https://lazy-firefox-extension.pages.dev/' }; ${content} })()`);
+  await evaluate(`(() => { const browser = window.extensionFixture; const location = { href: 'https://lazy.michalczukm.xyz/' }; ${content} })()`);
   await command('wait', '.site-link:nth-child(4)');
+  await evaluate('window.fixtureTabs.push({id:2,windowId:1,url:"https://lazy-diet.workers.dev/recipes/123"})');
+  await activateApp('document.querySelector(".site-link")', 2);
+  assert.equal(await evaluate('window.fixtureTabs[1].url'), 'https://lazy-diet.workers.dev/recipes/123');
+  await evaluate('window.fixtureTabs[1].active = false');
+  await clickNamed('Otwórz menu stron');
+  await activateApp('document.getElementById("lazy-start-launcher").shadowRoot.querySelector(".site-items a")', 2);
+  await command('press', 'Escape');
+  for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
+    assert.equal(await linkClick('document.querySelector(".site-link")', { [modifier]: true }), false, `${modifier} keeps native link behavior`);
+  }
+  assert.equal(await linkClick('document.querySelector(".site-link")', { button: 1 }), false, 'Middle clicks keep native behavior');
+  await evaluate('window.fixtureTabs.push({id:3,windowId:1,url:"https://lazy.michalczukm.xyz/"})');
+  await clickNamed('Otwórz menu stron');
+  await clickNamed('Start');
+  await evaluate('window.navigationComplete');
+  assert.equal(await evaluate('window.fixtureTabs.find(tab => tab.id === 3).active'), true, 'Hosted Start reuses dashboard');
+  await command('press', 'Escape');
+  await evaluate('window.failNavigation = true');
+  await activateApp('document.querySelector(".site-link")', 2);
+  await command('wait', '#links-status:not([hidden])');
+  assert.match(await evaluate('document.getElementById("links-status").textContent'), /Nie udało się otworzyć/);
+  assert.equal(await evaluate('window.fixtureTabs.length'), 3, 'Failure does not create another tab');
+  await evaluate('window.failNavigation = false');
   assert.equal(await evaluate('document.querySelectorAll("#lazy-start-launcher").length'), 1);
   await evaluate(`window.dispatchEvent(new CustomEvent('lazy-start:links', {detail: JSON.stringify({ok:true, customLinks:[{id:'00000000-0000-4000-8000-000000000001',label:'Unsafe',url:'javascript:alert(1)'}]})}))`);
   assert.equal(await evaluate('document.querySelectorAll(".site-link").length'), 4, 'Malformed bridge data does not replace links');
@@ -141,7 +199,7 @@ try {
   await evaluate('window.failExtensionWrites = false');
   await clickNamed('Dodaj stronę');
   assert.equal(await evaluate('document.querySelectorAll("#custom-links li").length'), 1, 'Can retry failed save');
-  console.log('Settings acceptance passed: add/remove, persistence, validation, fixed cog, write errors, ordinary menu, packaged dashboard, read-only hosted bridge, responsive layout, axe.');
+  console.log('Settings acceptance passed: add/remove, persistence, validation, write errors, private menu, packaged/hosted tab reuse, Start, navigation errors, modified-click and older-extension fallback, trusted bridge, responsive layout, axe.');
 } finally {
   await command('close'); server.close(); await rm(scratch, { recursive: true, force: true });
 }

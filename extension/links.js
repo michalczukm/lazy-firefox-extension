@@ -40,10 +40,10 @@ globalThis.LAZY_LINKS = Object.freeze([
   function isHostedDashboard(value) {
     try {
       const url = new URL(value);
-      return url.protocol === 'https:' && !url.port &&
-        /^(?:[a-z0-9-]+\.)?lazy-firefox-extension\.pages\.dev$/.test(url.hostname) &&
+      return url.protocol === 'https:' && !url.port && !url.username && !url.password &&
+        (url.hostname === 'lazy.michalczukm.xyz' || /^(?:[a-z0-9-]+\.)?lazy-firefox-extension\.pages\.dev$/.test(url.hostname)) &&
         ['/', '/dashboard', '/dashboard.html', '/index.html'].includes(url.pathname);
     } catch { return false; }
   }
-  globalThis.LazyLinks = Object.freeze({ normalizeInput, readStored, merge, isHostedDashboard });
+  globalThis.LazyLinks = Object.freeze({ normalizeInput, readStored, merge, isHostedDashboard, dashboardUrl: 'https://lazy.michalczukm.xyz/' });
 })();

@@ -47,7 +47,17 @@
   let instance;
   const roots = new WeakMap();
   const rootFor = host => roots.get(host) || host.shadowRoot;
-  function mount({ onHome, onSettings, links = globalThis.LAZY_LINKS, settingsAvailable = Boolean(onSettings), shadowMode = 'open' }) {
+  function handleLinkClick(event, onNavigate, onError) {
+    if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest('a[href]');
+    if (!link) return;
+    const navigation = onNavigate?.(link.href);
+    if (!navigation) return;
+    event.preventDefault();
+    Promise.resolve(navigation).catch(onError);
+  }
+
+  function mount({ onHome, onSettings, onNavigate, links = globalThis.LAZY_LINKS, settingsAvailable = Boolean(onSettings), shadowMode = 'open' }) {
     if (instance?.isConnected) return instance;
     const existing = document.getElementById('lazy-start-launcher');
     // Unrelated pages must not supply an open root that receives private links.
@@ -111,6 +121,8 @@
       try { await onHome(); } catch { showMessage('Nie udało się otworzyć Startu. Spróbuj ponownie.'); }
     });
     const siteItems = document.createElement('span'); siteItems.className = 'site-items';
+    siteItems.addEventListener('click', event => handleLinkClick(event, onNavigate,
+      () => showMessage('Nie udało się otworzyć strony. Spróbuj ponownie.')));
     nav.append(home, siteItems);
     const fullscreen = document.createElement('button'); fullscreen.type = 'button'; fullscreen.className = 'fullscreen';
     const fullscreenSupported = Boolean(document.fullscreenEnabled && document.documentElement.requestFullscreen);
@@ -172,5 +184,5 @@
     const message = rootFor(host)?.querySelector('.message');
     if (message) { message.textContent = text; message.hidden = !text; }
   }
-  globalThis.LazyLauncher = Object.freeze({ mount, icon, setLinks, setSettingsAvailable, notify });
+  globalThis.LazyLauncher = Object.freeze({ mount, icon, setLinks, setSettingsAvailable, notify, handleLinkClick });
 })();

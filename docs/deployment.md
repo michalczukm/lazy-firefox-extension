@@ -7,7 +7,12 @@ The hosted page caches weather in `localStorage` instead of extension storage.
 Both builds copy the pinned `@lazy/theme` package locally. The website and
 extension include its CSS, fonts, and license; no runtime CDN is used.
 
-Live site: https://lazy-firefox-extension.pages.dev/
+Live site: https://lazy.michalczukm.xyz/
+
+The Pages project address `https://lazy-firefox-extension.pages.dev/` and its
+preview subdomains remain trusted dashboard aliases. The extension uses the
+custom domain for new dashboard tabs. Website deployment and extension upgrades
+are independent: a website used without extension 1.3.0 retains ordinary links.
 
 ## GitHub setup
 

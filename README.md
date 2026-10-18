@@ -6,7 +6,7 @@ Firefox page launcher and Gdańsk weather dashboard. Polish UI, English docs.
 
 For personal use; **no store listing needed**. Firefox 142+ still requires a **Mozilla-signed XPI** for permanent installation.
 
-1. Submit `dist/lazy_start-1.2.0.zip` to [Mozilla Developer Hub](https://addons.mozilla.org/developers/) for unlisted signing. Save the signed XPI on Android.
+1. Submit `dist/lazy_start-1.3.0.zip` to [Mozilla Developer Hub](https://addons.mozilla.org/developers/) for unlisted signing. Save the signed XPI on Android.
 2. In Firefox, open **Settings > About Firefox**. Tap the Firefox logo **five times**.
 3. Return to **Settings > Install Extension from File**. Select the XPI and tap **Add**.
 
@@ -30,11 +30,13 @@ Desktop Firefox 140+: open `about:debugging#/runtime/this-firefox`, choose **Loa
 
 ## Hosting
 
-[Standalone dashboard](https://lazy-firefox-extension.pages.dev/). CI deploys `main` and same-repo PR previews. [Setup and commands](docs/deployment.md).
+[Standalone dashboard](https://lazy.michalczukm.xyz/). CI deploys `main` and same-repo PR previews. [Setup and commands](docs/deployment.md).
 
 ## Notes
 
 - Add personal links through **Ustawienia** (cog). [Guide](docs/custom-links.md). Built-ins stay in [extension/links.js](extension/links.js).
+- With extension 1.3.0, normal app taps reuse an existing tab in the current Firefox window, preserving its route and state. Missing apps open in new tabs. **Start** and the toolbar action reuse a dashboard tab or open `https://lazy.michalczukm.xyz/`. Matching uses the exact origin (scheme, host and port); custom links on the same origin share a tab. Modified clicks retain Firefox's native behavior. Existing duplicates are not closed.
+- The `tabs` permission lets the background script read open-tab URLs locally for matching. URLs are not uploaded. Without a compatible extension, the website keeps ordinary link navigation.
 - Shared design: [lazy-theme v0.1.0](https://github.com/michalczukm/lazy-theme). [Migration and rollback](docs/theme-migration.md).
 - Open-Meteo weather refreshes every 15 minutes while visible. Cached data works offline; no device geolocation.
 - No Android homepage override, device lock, or persistent kiosk mode. Firefox blocks injection on protected pages.

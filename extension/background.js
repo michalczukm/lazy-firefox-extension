@@ -1,6 +1,46 @@
-const dashboardUrl = browser.runtime.getURL('dashboard.html');
+const packagedDashboardUrl = browser.runtime.getURL('dashboard.html');
 const settingsUrl = browser.runtime.getURL('settings.html');
 let pending = Promise.resolve();
+let pendingNavigation = Promise.resolve();
+const openingTabs = new Map();
+browser.tabs.onUpdated.addListener((id, changes) => {
+  if (changes.url && changes.url !== 'about:blank') openingTabs.delete(id);
+});
+browser.tabs.onRemoved.addListener(id => openingTabs.delete(id));
+
+function navigationRequest(message, source) {
+  // Keep query/create atomic across rapid taps and both navigation surfaces.
+  const result = pendingNavigation.then(async () => {
+    const home = message.type === 'open-dashboard';
+    const url = home ? globalThis.LazyLinks.dashboardUrl : message.url;
+    if (!home && !globalThis.LAZY_LINKS.some(link => link.url === url) &&
+        !(await readCustomLinks()).some(link => link.url === url)) {
+      throw new Error('Unknown destination');
+    }
+    const origin = new URL(url).origin;
+    const scope = Number.isInteger(source?.windowId) ? { windowId: source.windowId } : { currentWindow: true };
+    const tabs = await browser.tabs.query(scope);
+    // Firefox can resolve create() while the tab still reports about:blank.
+    // Only reserve our own new tabs, and stop reserving once their URL is known.
+    for (const tab of tabs) {
+      const value = tab.pendingUrl || tab.url;
+      if (value && value !== 'about:blank') openingTabs.delete(tab.id);
+    }
+    const matches = value => {
+      if (home) return value === packagedDashboardUrl || globalThis.LazyLinks.isHostedDashboard(value);
+      try { return new URL(value).origin === origin; } catch { return false; }
+    };
+    const tab = tabs.find(tab => matches(tab.pendingUrl || tab.url) || matches(openingTabs.get(tab.id)));
+    if (tab) await browser.tabs.update(tab.id, { active: true });
+    else {
+      const created = await browser.tabs.create({ url, active: true, ...(Number.isInteger(source?.windowId) ? { windowId: source.windowId } : {}) });
+      openingTabs.set(created.id, url);
+    }
+    return { ok: true };
+  }).catch(() => ({ ok: false, error: 'Nie udało się otworzyć strony. Spróbuj ponownie.' }));
+  pendingNavigation = result.then(() => {});
+  return result;
+}
 
 async function readCustomLinks() {
   return globalThis.LazyLinks.readStored((await browser.storage.local.get('customLinks')).customLinks);
@@ -32,8 +72,10 @@ function linkRequest(message) {
 
 browser.runtime.onMessage.addListener((message, sender) => {
   if (sender.id !== browser.runtime.id) return;
-  if (message?.type === 'open-dashboard' && Number.isInteger(sender.tab?.id)) {
-    return browser.tabs.update(sender.tab.id, { url: dashboardUrl });
+  if (['open-dashboard', 'open-link'].includes(message?.type)) {
+    if ((sender.frameId !== undefined && sender.frameId !== 0) ||
+        (!Number.isInteger(sender.tab?.id) && sender.url !== packagedDashboardUrl)) return;
+    return navigationRequest(message, sender.tab);
   }
   if (message?.type === 'open-settings') return browser.runtime.openOptionsPage();
   if (!['get-custom-links', 'add-custom-link', 'remove-custom-link'].includes(message?.type)) return;
@@ -44,6 +86,5 @@ browser.runtime.onMessage.addListener((message, sender) => {
 });
 
 browser.browserAction.onClicked.addListener(tab => {
-  if (Number.isInteger(tab?.id)) return browser.tabs.update(tab.id, { url: dashboardUrl });
-  return browser.tabs.create({ url: dashboardUrl });
+  return navigationRequest({ type: 'open-dashboard' }, tab);
 });

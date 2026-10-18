@@ -9,7 +9,7 @@ function environment(initial = {}) {
   const browser = {
     runtime: { id: 'lazy@test', getURL: file => `moz-extension://test/${file}`, onMessage: { addListener(fn) { listener = fn; } }, openOptionsPage: async () => { changes.push('settings'); } },
     browserAction: { onClicked: { addListener() {} } },
-    tabs: { update: async () => {}, create: async () => {} },
+    tabs: { update: async () => {}, create: async () => {}, onUpdated: { addListener() {} }, onRemoved: { addListener() {} } },
     storage: { local: {
       async get(key) { await new Promise(resolve => setTimeout(resolve, 2)); return { [key]: structuredClone(data[key]) }; },
       async set(values) { await new Promise(resolve => setTimeout(resolve, 2)); Object.assign(data, structuredClone(values)); },
@@ -85,6 +85,6 @@ test('storage failures and corrupt saved values never overwrite user data', asyn
 
 test('hosted bridge is restricted to this dashboard project and its preview origins', () => {
   const { links } = environment();
-  for (const url of ['https://lazy-firefox-extension.pages.dev/', 'https://pr-2.lazy-firefox-extension.pages.dev/dashboard', 'https://abcdef.lazy-firefox-extension.pages.dev/dashboard.html']) assert.equal(links.isHostedDashboard(url), true, url);
-  for (const url of ['https://evil.test/', 'https://lazy-firefox-extension.pages.dev.evil.test/', 'http://lazy-firefox-extension.pages.dev/', 'https://other.pages.dev/', 'https://lazy-firefox-extension.pages.dev/settings.html', 'http://localhost:4198/']) assert.equal(links.isHostedDashboard(url), false, url);
+  for (const url of ['https://lazy.michalczukm.xyz/', 'https://lazy.michalczukm.xyz/dashboard.html', 'https://lazy-firefox-extension.pages.dev/', 'https://pr-2.lazy-firefox-extension.pages.dev/dashboard', 'https://abcdef.lazy-firefox-extension.pages.dev/dashboard.html']) assert.equal(links.isHostedDashboard(url), true, url);
+  for (const url of ['https://evil.test/', 'https://lazy.michalczukm.xyz.evil.test/', 'https://other.lazy.michalczukm.xyz/', 'http://lazy.michalczukm.xyz/', 'https://lazy.michalczukm.xyz:8443/', 'https://lazy.michalczukm.xyz/settings.html', 'https://lazy-firefox-extension.pages.dev.evil.test/', 'http://lazy-firefox-extension.pages.dev/', 'https://other.pages.dev/', 'https://lazy-firefox-extension.pages.dev/settings.html', 'http://localhost:4198/']) assert.equal(links.isHostedDashboard(url), false, url);
 });

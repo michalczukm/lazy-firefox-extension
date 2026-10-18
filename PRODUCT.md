@@ -34,13 +34,19 @@ no public add-on store listing or automated distribution is required.
   on the current webpage.
 - The same dashboard is also a standalone Cloudflare Pages website. GitHub
   Actions verifies changes, deploys `main`, and deploys same-repository PR previews.
-  Production URL: `https://lazy-firefox-extension.pages.dev/`.
+  Production URL: `https://lazy.michalczukm.xyz/`.
 - All interface text is Polish.
 - All documentation is English. Quoted interface labels retain their Polish wording.
 - Settings add or remove named HTTP/HTTPS links in this Firefox profile. Custom
   links use one fixed cog icon; built-ins remain immutable. Existing menus and
   both dashboards update from extension storage. The hosted dashboard requires
   the installed extension and receives data through a restricted local bridge.
+- Normal destination taps in either dashboard or the injected menu activate an
+  existing tab on the same origin in the current Firefox window, preserving its
+  URL and state. If none exists, create a tab without replacing the dashboard or
+  current app. Start and the toolbar action reuse a hosted or packaged dashboard
+  tab, otherwise create `https://lazy.michalczukm.xyz/`. Rapid requests are serialized.
+  Modified clicks retain native behavior; pre-existing duplicates stay open.
 
 ## Weather and Privacy
 
@@ -49,6 +55,8 @@ without an API key or device geolocation. Values use Celsius and Europe/Warsaw.
 Precipitation probability is the daily maximum. Failed requests retain the last
 valid result with its timestamp; previous-day forecasts show their actual date.
 
+The extension reads open-tab URLs locally using the `tabs` permission to match
+destinations; it does not upload them or use the browsing-history API.
 The extension stores weather locally in `browser.storage.local`; the standalone
 website and development preview use `localStorage`. It does not transmit page contents, browsing history,
 or device location. There are no accounts, analytics, or remote scripts.
@@ -80,6 +88,11 @@ tablet. Test navigation, dashboard access, offline weather, and fullscreen there
   system overlay.
 - Fullscreen is temporary and may end on navigation, tab changes, or
   switching apps. It does not enforce kiosk mode.
+- Mozilla documents partial `tabs.query()` support on Firefox Android: some open
+  tabs may be omitted. Tab reuse needs signed-extension checks on the target tablet,
+  including background/restored tabs. Chromium fixtures cannot establish this.
+- Start opens the hosted dashboard when none is open, which requires network
+  access for its first load. The bundled dashboard remains available directly.
 - Android device locking requires a separate native component with
   appropriate device administrator privileges. The extension alone cannot
   provide a working lock button; omit that control from this version.

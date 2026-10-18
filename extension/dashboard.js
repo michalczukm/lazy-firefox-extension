@@ -19,11 +19,32 @@ const storage = globalThis.browser?.storage.local || {
 };
 
 const nativeExtension = Boolean(globalThis.browser?.runtime?.sendMessage);
+let extensionAvailable = nativeExtension;
+async function navigate(message) {
+  if (nativeExtension) {
+    const result = await browser.runtime.sendMessage(message);
+    if (!result?.ok) throw new Error(result?.error);
+  } else {
+    window.dispatchEvent(new CustomEvent('lazy-start:navigate', { detail: JSON.stringify(message) }));
+  }
+}
+const openLink = url => extensionAvailable ? navigate({ type: 'open-link', url }) : null;
 const openSettings = () => nativeExtension ? browser.runtime.openOptionsPage() :
   window.dispatchEvent(new CustomEvent('lazy-start:open-settings'));
 const launcher = globalThis.LazyLauncher.mount({
-  onHome: () => { location.href = 'dashboard.html'; }, onSettings: openSettings, settingsAvailable: nativeExtension,
+  onHome: () => {
+    if (extensionAvailable) return navigate({ type: 'open-dashboard' });
+    location.href = 'dashboard.html';
+  },
+  onNavigate: openLink, onSettings: openSettings, settingsAvailable: nativeExtension,
 });
+function showNavigationError() {
+  const message = 'Nie udało się otworzyć strony. Spróbuj ponownie.';
+  $('links-status').textContent = message;
+  $('links-status').hidden = false;
+  globalThis.LazyLauncher.notify(launcher, message);
+}
+$('site-links').addEventListener('click', event => globalThis.LazyLauncher.handleLinkClick(event, openLink, showNavigationError));
 refresh.append(globalThis.LazyLauncher.icon('refresh'));
 $('open-settings').append(globalThis.LazyLauncher.icon('settings'));
 $('open-settings').hidden = !nativeExtension;
@@ -48,6 +69,7 @@ function receiveLinks(result) {
   try {
     if (!result || typeof result.ok !== 'boolean') return;
     if (result.ok) renderLinks(globalThis.LazyLinks.merge(result.customLinks));
+    extensionAvailable = nativeExtension || result.navigationAvailable === true;
     $('links-status').textContent = result.ok ? '' : 'Nie udało się wczytać własnych stron. Otwórz ustawienia i spróbuj ponownie.';
     $('links-status').hidden = result.ok;
     $('open-settings').hidden = false;
@@ -62,6 +84,7 @@ if (nativeExtension) {
   });
   updateLinks();
 } else {
+  window.addEventListener('lazy-start:navigation-error', showNavigationError);
   window.addEventListener('lazy-start:links', event => {
     if (typeof event.detail !== 'string') return;
     try { receiveLinks(JSON.parse(event.detail)); } catch { /* Invalid bridge payload. */ }
