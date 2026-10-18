@@ -25,7 +25,10 @@ async function clickNamed(name) {
 }
 const standalone = process.argv.includes('--site');
 const root = resolve(standalone ? 'dist/site' : 'extension');
+// This dashboard fixture uses only the global block. Pages handles path-specific
+// download headers and redirects; those are verified against Pages itself.
 const siteHeaders = standalone ? Object.fromEntries((await readFile(resolve(root, '_headers'), 'utf8'))
+  .split(/\n(?=\S)/).find(block => block.startsWith('/*\n'))
   .split('\n').filter(line => line.startsWith('  ')).map(line => {
     const separator = line.indexOf(':');
     return [line.slice(0, separator).trim(), line.slice(separator + 1).trim()];

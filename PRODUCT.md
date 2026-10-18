@@ -35,6 +35,9 @@ no public add-on store listing or automated distribution is required.
 - The same dashboard is also a standalone Cloudflare Pages website. GitHub
   Actions verifies changes, deploys `main`, and deploys same-repository PR previews.
   Production URL: `https://lazy.michalczukm.xyz/`.
+- The site serves a Mozilla-signed XPI at `/firefox-extension` for manual Firefox
+  installation. It redirects to an immutable, versioned download. Signing remains
+  manual; website deployments publish the checked-in signed file unchanged.
 - All interface text is Polish.
 - All documentation is English. Quoted interface labels retain their Polish wording.
 - Settings add or remove named HTTP/HTTPS links in this Firefox profile. Custom

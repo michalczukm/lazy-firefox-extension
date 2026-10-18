@@ -6,14 +6,14 @@ Firefox page launcher and Gdańsk weather dashboard. Polish UI, English docs.
 
 For personal use; **no store listing needed**. Firefox 142+ still requires a **Mozilla-signed XPI** for permanent installation.
 
-1. Submit `dist/lazy_start-1.3.0.zip` to [Mozilla Developer Hub](https://addons.mozilla.org/developers/) for unlisted signing. Save the signed XPI on Android.
+1. Download the [Mozilla-signed extension](https://lazy.michalczukm.xyz/firefox-extension) and save the `.xpi` on Android.
 2. In Firefox, open **Settings > About Firefox**. Tap the Firefox logo **five times**.
 3. Return to **Settings > Install Extension from File**. Select the XPI and tap **Add**.
 
 Open a normal website. Tap the nine-dot button, then **Start** for the dashboard.
 [Mozilla's installation guide](https://extensionworkshop.com/documentation/publish/install-self-distributed/).
 
-Updates are manual: increase the version in `extension/manifest.json`, rebuild, sign, and install the new XPI.
+Updates are manual: rebuild and sign a new version, [publish the signed file](docs/deployment.md#signed-extension-download), then download and install the new XPI.
 
 ## Develop
 

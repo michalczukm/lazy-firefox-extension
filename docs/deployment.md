@@ -1,7 +1,8 @@
 # Cloudflare Pages deployment
 
 The standalone dashboard uses the same HTML, CSS, JavaScript, fonts, and icons
-as the extension. `pnpm build:site` copies only dashboard assets into `dist/site`.
+as the extension. `pnpm build:site` copies dashboard assets and the signed release
+download into `dist/site`.
 Both `/` and `/dashboard` open the dashboard. No backend or API key is needed.
 The hosted page caches weather in `localStorage` instead of extension storage.
 Both builds copy the pinned `@lazy/theme` package locally. The website and
@@ -61,8 +62,32 @@ The security policy permits weather requests only to Open-Meteo. Scripts are
 same-origin; inline styles support the shared Shadow DOM launcher. Extension
 entry points and manifest are excluded from the public website build.
 
-The CI does not sign, publish, or install the Firefox extension. Those operations
-remain manual and independent of website deployment.
+The CI publishes the checked-in signed extension alongside the website. It does
+not sign or install extensions; signing remains a manual Mozilla submission.
+
+## Signed extension download
+
+`https://lazy.michalczukm.xyz/firefox-extension` redirects with HTTP 302 to the
+latest published signed XPI, currently `/downloads/lazy-start-1.3.0.xpi`.
+This is a static Pages download, with attachment headers and an immutable,
+versioned filename. No R2 bucket or Pages Function is needed.
+
+To publish a new extension version:
+
+1. Increase the version in `extension/manifest.json` and `package.json`, run
+   `pnpm verify`, and submit the resulting ZIP to Mozilla for unlisted signing.
+2. Download the signed XPI and copy it unchanged to
+   `site/downloads/lazy-start-<version>.xpi`. Never unzip, edit, or repack it.
+3. Update `site/_redirects` to point `/firefox-extension` at that file. Retain old
+   versioned files, and never replace an existing version's bytes.
+4. Update the signed-download fixture path in `tests/site.test.js`, run
+   `pnpm verify`, commit the signed file and routing change, then deploy.
+
+The site build copies checked-in signed files byte for byte. It never publishes
+the unsigned ZIP from `dist/` as the installable download. The signed release can
+remain on an older version while new extension source changes await signing.
+On Android, save the XPI and use Firefox's **Install Extension from File** flow
+described in the [README](../README.md#install-on-android).
 
 The hosted dashboard's custom links come from the installed extension's local
 profile. They are not deployment data or Cloudflare secrets. See the

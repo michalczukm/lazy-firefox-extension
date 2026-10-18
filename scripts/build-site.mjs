@@ -12,5 +12,6 @@ for (const file of ['dashboard.html', 'dashboard.css', 'dashboard.js', 'weather.
 }
 // Keep dashboard.html for existing Home links; index.html serves the site root.
 await copyFile(new URL('dashboard.html', source), new URL('index.html', output));
-await copyFile(new URL('../site/_headers', import.meta.url), new URL('_headers', output));
+// Include Pages routing/headers and the byte-for-byte, Mozilla-signed release.
+await cp(new URL('../site/', import.meta.url), output, { recursive: true });
 console.log('Dashboard built in dist/site');
