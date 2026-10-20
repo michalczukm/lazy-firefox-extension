@@ -18,7 +18,7 @@ Persistent kiosk enforcement and native Android locking are outside its capabili
    trigger when closing with Escape.
 3. The strip contains `Start`, `lazy-diet`, `lazy-tea`, and a fullscreen
    action. Links navigate in the current tab. Destination URLs are fixed:
-   `https://lazy-diet.workers.dev/` and `https://lazy-tea.pages.dev/`.
+   `https://lazy-diet.michalczukm.xyz/` and `https://lazy-tea.pages.dev/`.
    Additional requested slots wait for real destinations; no dead links.
 4. `Start` opens the packaged dashboard in the current tab. The Firefox
    extension toolbar action offers a second route to it.

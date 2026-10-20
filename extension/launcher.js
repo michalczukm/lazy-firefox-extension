@@ -46,7 +46,6 @@
 
   let instance;
   const roots = new WeakMap();
-  const fullscreenIntents = new WeakMap();
   const rootFor = host => roots.get(host) || host.shadowRoot;
   function handleLinkClick(event, onNavigate, onError) {
     if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
@@ -58,7 +57,7 @@
     Promise.resolve(navigation).catch(onError);
   }
 
-  function mount({ onHome, onSettings, onNavigate, onFullscreenIntent, links = globalThis.LAZY_LINKS, settingsAvailable = Boolean(onSettings), shadowMode = 'open' }) {
+  function mount({ onHome, onSettings, onNavigate, links = globalThis.LAZY_LINKS, settingsAvailable = Boolean(onSettings), shadowMode = 'open' }) {
     if (instance?.isConnected) return instance;
     const existing = document.getElementById('lazy-start-launcher');
     // Unrelated pages must not supply an open root that receives private links.
@@ -128,60 +127,16 @@
     const fullscreen = document.createElement('button'); fullscreen.type = 'button'; fullscreen.className = 'fullscreen';
     const fullscreenSupported = Boolean(document.fullscreenEnabled && document.documentElement.requestFullscreen);
     fullscreen.hidden = !fullscreenSupported;
-    let fullscreenWanted = false;
-    let restoreArmed = false;
-    let fullscreenBusy = false;
     function updateFullscreen() {
-      fullscreen.replaceChildren(icon(document.fullscreenElement || fullscreenWanted ? 'collapse' : 'expand'),
-        document.fullscreenElement ? 'Opuść pełny ekran' : fullscreenWanted ? 'Wyłącz przywracanie' : 'Pełny ekran');
+      fullscreen.replaceChildren(icon(document.fullscreenElement ? 'collapse' : 'expand'),
+        document.fullscreenElement ? 'Opuść pełny ekran' : 'Pełny ekran');
     }
-    function setFullscreenIntent(enabled) {
-      fullscreenWanted = enabled === true;
-      restoreArmed = fullscreenWanted && !document.fullscreenElement;
-      updateFullscreen();
-    }
-    fullscreenIntents.set(host, setFullscreenIntent);
     fullscreen.addEventListener('click', async () => {
-      if (fullscreenBusy) return;
-      fullscreenBusy = true;
       try {
-        if (document.fullscreenElement || fullscreenWanted) {
-          setFullscreenIntent(false);
-          await Promise.all([document.fullscreenElement ? document.exitFullscreen() : undefined, onFullscreenIntent?.(false)]);
-        } else {
-          await document.documentElement.requestFullscreen();
-          setFullscreenIntent(true);
-          await onFullscreenIntent?.(true);
-        }
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await document.documentElement.requestFullscreen();
         message.hidden = true; updateFullscreen();
-      } catch { showMessage('Nie udało się włączyć lub zapamiętać pełnego ekranu. Spróbuj ponownie.'); }
-      finally { fullscreenBusy = false; }
-    });
-    // Run after page handlers, without canceling the tap or stealing an already
-    // consumed user activation. Navigation, form fields and media keep their gestures.
-    window.addEventListener('click', event => {
-      const path = event.composedPath();
-      if (!fullscreenSupported || !fullscreenWanted || !restoreArmed || fullscreenBusy || document.hidden || document.fullscreenElement ||
-          !event.isTrusted || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey ||
-          navigator.userActivation?.isActive === false || path.includes(host)) return;
-      if (path.some(element => element.matches?.('a, input, textarea, select, label, video, audio, [contenteditable]:not([contenteditable="false"])') ||
-          (element.matches?.('button') && element.form && ['submit', 'reset'].includes(element.type)))) return;
-      // A closed custom component does not expose its inner control in the path.
-      if (path[0]?.localName?.includes('-') && !path[0].shadowRoot) return;
-      restoreArmed = false;
-      fullscreenBusy = true;
-      // Call synchronously while this tap still supplies user activation.
-      try {
-        Promise.resolve(document.documentElement.requestFullscreen())
-          .catch(() => showMessage('Firefox nie pozwolił przywrócić pełnego ekranu.'))
-          .finally(() => { fullscreenBusy = false; });
-      } catch {
-        fullscreenBusy = false;
-        showMessage('Firefox nie pozwolił przywrócić pełnego ekranu.');
-      }
-    });
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && fullscreenWanted && !document.fullscreenElement) restoreArmed = true;
+      } catch { showMessage('Firefox nie pozwolił włączyć pełnego ekranu na tej stronie.'); }
     });
     updateFullscreen(); nav.append(fullscreen);
     const settings = document.createElement('button'); settings.type = 'button'; settings.className = 'settings';
@@ -203,19 +158,12 @@
       if (!nav.hidden && !event.composedPath().includes(host)) setOpen(false);
     }, true);
     document.addEventListener('keydown', event => {
-      if (event.isTrusted && event.key === 'Escape' && document.fullscreenElement && fullscreenWanted) {
-        setFullscreenIntent(false);
-        Promise.resolve(onFullscreenIntent?.(false)).catch(() => showMessage('Nie udało się zapamiętać wyłączenia pełnego ekranu.'));
-      }
       if (event.key === 'Escape' && !nav.hidden) { setOpen(false, true); event.preventDefault(); }
     }, true);
     shadow.addEventListener('focusout', event => {
       if (!shadow.contains(event.relatedTarget)) setOpen(false);
     });
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement && fullscreenWanted) restoreArmed = true;
-      updateFullscreen();
-    });
+    document.addEventListener('fullscreenchange', updateFullscreen);
     bar.append(nav, trigger); shadow.append(style, bar, message);
     document.documentElement.append(host); instance = host; setLinks(host, links);
     return host;
@@ -236,6 +184,5 @@
     const message = rootFor(host)?.querySelector('.message');
     if (message) { message.textContent = text; message.hidden = !text; }
   }
-  function setFullscreenIntent(host, enabled) { fullscreenIntents.get(host)?.(enabled); }
-  globalThis.LazyLauncher = Object.freeze({ mount, icon, setLinks, setSettingsAvailable, notify, handleLinkClick, setFullscreenIntent });
+  globalThis.LazyLauncher = Object.freeze({ mount, icon, setLinks, setSettingsAvailable, notify, handleLinkClick });
 })();

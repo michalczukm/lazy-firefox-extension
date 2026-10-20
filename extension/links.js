@@ -1,5 +1,5 @@
 globalThis.LAZY_LINKS = Object.freeze([
-  Object.freeze({ label: 'lazy-diet', description: 'Posiłki i planowanie', url: 'https://lazy-diet.workers.dev/', icon: 'bowl' }),
+  Object.freeze({ label: 'lazy-diet', description: 'Posiłki i planowanie', url: 'https://lazy-diet.michalczukm.xyz/', icon: 'bowl' }),
   Object.freeze({ label: 'lazy-tea', description: 'Tak się parzy herbatę', url: 'https://lazy-tea.pages.dev/', icon: 'cup' }),
   Object.freeze({ label: 'lazy-list', description: 'Lista zakupów', url: 'https://lazy-list.michalczukm.xyz/', icon: 'basket' }),
 ]);
@@ -22,7 +22,7 @@ globalThis.LAZY_LINKS = Object.freeze([
     if (value === undefined) return [];
     try {
       if (!Array.isArray(value)) throw new Error();
-      const ids = new Set(); const urls = new Set(globalThis.LAZY_LINKS.map(link => link.url));
+      const ids = new Set(); const urls = new Set();
       return value.map(item => {
         if (typeof item?.id !== 'string' || !uuid.test(item.id) || ids.has(item.id)) throw new Error();
         const link = normalizeInput(item);
@@ -33,7 +33,9 @@ globalThis.LAZY_LINKS = Object.freeze([
     } catch { invalid('Nie można odczytać zapisanych stron. Odśwież kartę i spróbuj ponownie.'); }
   }
   function merge(customLinks) {
-    return [...globalThis.LAZY_LINKS, ...readStored(customLinks).map(link => ({
+    // A corrected built-in URL may already exist in an older saved custom list.
+    const custom = readStored(customLinks).filter(link => !globalThis.LAZY_LINKS.some(builtIn => builtIn.url === link.url));
+    return [...globalThis.LAZY_LINKS, ...custom.map(link => ({
       ...link, icon: 'settings', description: new URL(link.url).host,
     }))];
   }

@@ -7,7 +7,7 @@ test('destinations are shared, fixed HTTPS links', () => {
   const context = {};
   vm.runInNewContext(readFileSync('extension/links.js', 'utf8'), context);
   assert.deepEqual(Array.from(context.LAZY_LINKS, link => link.url), [
-    'https://lazy-diet.workers.dev/', 'https://lazy-tea.pages.dev/', 'https://lazy-list.michalczukm.xyz/',
+    'https://lazy-diet.michalczukm.xyz/', 'https://lazy-tea.pages.dev/', 'https://lazy-list.michalczukm.xyz/',
   ]);
   assert.equal(context.LAZY_LINKS[2].label, 'lazy-list');
   assert.equal(Object.isFrozen(context.LAZY_LINKS), true);

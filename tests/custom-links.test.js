@@ -33,6 +33,17 @@ test('custom links normalize HTTP URLs and always use the fixed cog', () => {
   assert.equal(links.normalizeInput({ label: 'Local', url: 'http://localhost:8080' }).url, 'http://localhost:8080/');
 });
 
+test('a saved link that becomes built-in remains readable and appears only once in navigation', async () => {
+  const customLinks = [{ id: randomUUID(), label: 'Diet', url: 'https://lazy-diet.michalczukm.xyz/' }];
+  const env = environment({ customLinks });
+  const result = await env.send({ type: 'get-custom-links' });
+  assert.equal(result.ok, true);
+  assert.equal(result.customLinks.length, 1, 'Keep the saved record so it can still be removed in settings');
+  assert.equal(env.links.merge(result.customLinks).filter(link => link.url === 'https://lazy-diet.michalczukm.xyz/').length, 1);
+  assert.deepEqual(env.data.customLinks, customLinks, 'Reading does not rewrite user storage');
+  assert.equal((await env.send({ type: 'add-custom-link', label: 'Duplicate', url: customLinks[0].url })).ok, false);
+});
+
 test('rejects unsafe URLs, credentials, empty names and duplicates', async () => {
   const env = environment();
   for (const url of ['javascript:alert(1)', 'data:text/html,test', 'file:///tmp/file', 'about:config', 'https://name:password@example.com/', 'example.com', 'https://example.com/\n']) {

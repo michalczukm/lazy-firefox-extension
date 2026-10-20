@@ -75,7 +75,7 @@ try {
   await command('wait', '.weather[data-state="fresh"]');
   assert.equal(await evaluate('document.getElementById("temperature").textContent'), '12');
   assert.equal(await evaluate('document.documentElement.lang'), 'pl');
-  assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".site-link"), a => a.href)'), ['https://lazy-diet.workers.dev/', 'https://lazy-tea.pages.dev/', 'https://lazy-list.michalczukm.xyz/']);
+  assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".site-link"), a => a.href)'), ['https://lazy-diet.michalczukm.xyz/', 'https://lazy-tea.pages.dev/', 'https://lazy-list.michalczukm.xyz/']);
   assert.match(await evaluate('getComputedStyle(document.documentElement).fontFamily'), /Atkinson Hyperlegible Next/);
   assert.equal(await evaluate('document.getElementById("refresh").getBoundingClientRect().width'), 48);
   assert.equal(await evaluate(`document.fonts.ready.then(() => document.fonts.check('16px "Atkinson Hyperlegible Next"'))`), true);

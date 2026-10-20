@@ -37,10 +37,6 @@ const launcher = globalThis.LazyLauncher.mount({
     location.href = 'dashboard.html';
   },
   onNavigate: openLink, onSettings: openSettings, settingsAvailable: nativeExtension,
-  onFullscreenIntent: enabled => {
-    if (nativeExtension) return browser.storage.local.set({ fullscreenIntent: enabled });
-    if (extensionAvailable) window.dispatchEvent(new CustomEvent('lazy-start:fullscreen-intent', { detail: JSON.stringify(enabled) }));
-  },
 });
 function showNavigationError() {
   const message = 'Nie udało się otworzyć strony. Spróbuj ponownie.';
@@ -85,19 +81,9 @@ if (nativeExtension) {
     .then(receiveLinks).catch(() => receiveLinks({ ok: false }));
   browser.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && Object.hasOwn(changes, 'customLinks')) updateLinks();
-    if (area === 'local' && Object.hasOwn(changes, 'fullscreenIntent')) globalThis.LazyLauncher.setFullscreenIntent(launcher, changes.fullscreenIntent.newValue);
   });
-  browser.storage.local.get('fullscreenIntent')
-    .then(result => globalThis.LazyLauncher.setFullscreenIntent(launcher, result.fullscreenIntent)).catch(() => {});
   updateLinks();
 } else {
-  window.addEventListener('lazy-start:fullscreen-state', event => {
-    if (['true', 'false'].includes(event.detail)) globalThis.LazyLauncher.setFullscreenIntent(launcher, event.detail === 'true');
-  });
-  window.addEventListener('lazy-start:fullscreen-error', () => {
-    globalThis.LazyLauncher.notify(launcher, 'Nie udało się zapamiętać ustawienia pełnego ekranu. Spróbuj ponownie.');
-  });
-  window.dispatchEvent(new CustomEvent('lazy-start:request-fullscreen-state'));
   window.addEventListener('lazy-start:navigation-error', showNavigationError);
   window.addEventListener('lazy-start:links', event => {
     if (typeof event.detail !== 'string') return;

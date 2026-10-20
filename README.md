@@ -39,7 +39,7 @@ Desktop Firefox 140+: open `about:debugging#/runtime/this-firefox`, choose **Loa
 - The `tabs` permission lets the background script read open-tab URLs locally for matching. URLs are not uploaded. Without a compatible extension, the website keeps ordinary link navigation.
 - Shared design: [lazy-theme v0.1.0](https://github.com/michalczukm/lazy-theme). [Migration and rollback](docs/theme-migration.md).
 - Open-Meteo weather refreshes every 15 minutes while visible. Cached data works offline; no device geolocation.
-- With extension 1.4.0, enabling **Pełny ekran** remembers a profile-wide preference. After navigation from dashboard links or the menu, the first eligible content tap restores fullscreen and still reaches the page. Links, form fields, media, canceled gestures, and launcher controls are excluded. **Opuść pełny ekran** or **Wyłącz przywracanie** disables restoration.
+- Fullscreen is manual: choose **Pełny ekran** in the menu. Page taps never restore it automatically after navigation.
 - No Android homepage override, device lock, or persistent kiosk mode. Firefox blocks injection on protected pages.
 - Physical Firefox Android verification remains pending. [Product details](PRODUCT.md) · [Design](DESIGN.md).
 - Assets: [Atkinson font license](extension/fonts/OFL.txt) · [Lucide icon sources](https://github.com/lucide-icons/lucide/tree/1ef60af944de207e0d5176905a0759ba12e6ee8d/icons) · [Icon license](extension/icons/LICENSE-lucide.txt).
